@@ -91,27 +91,24 @@ function Join() {
   } = useForm<IJoinForm>();
   const onSubmit = (data: IJoinForm) => {
     if (data.pwConfirm !== data.pw) {
-      setError(
-        "pwConfirm",
-        { message: "password are not the same" },
-        { shouldFocus: true }
-      );
+      setError("pwConfirm", { message: "password are not the same" }, { shouldFocus: true });
+    } else {
+      createUserWithEmailAndPassword(authService, data.email, data.pw)
+        .then(() => {
+          alert(`welcome ${data.email}!`);
+          navigator("/");
+        })
+        .catch((error) => {
+          console.log(error);
+          switch (error.code) {
+            case "auth/email-already-in-use":
+              alert("email already exists.");
+              break;
+            default:
+              alert("Join inavailable.");
+          }
+        });
     }
-    createUserWithEmailAndPassword(authService, data.email, data.pw)
-      .then(() => {
-        alert(`welcome ${data.email}!`);
-        navigator("/login");
-      })
-      .catch((error) => {
-        console.log(error);
-        switch (error.code) {
-          case "auth/email-already-in-use":
-            alert("email already exists.");
-            break;
-          default:
-            alert("Join inavailable.");
-        }
-      });
   };
   return (
     <Wrapper>
