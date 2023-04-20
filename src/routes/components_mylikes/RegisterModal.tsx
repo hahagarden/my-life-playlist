@@ -1,9 +1,5 @@
 import styled, { keyframes } from "styled-components";
-import {
-  registerModalOnAtom,
-  likesAtom,
-  categoryTemplateAtom,
-} from "./atoms_mylikes";
+import { registerModalOnAtom, likesAtom, categoryTemplateAtom } from "./atoms_mylikes";
 import { useForm } from "react-hook-form";
 import { useRecoilState } from "recoil";
 import { dbService } from "../../fbase";
@@ -132,7 +128,7 @@ const Button = styled.button`
   }
 `;
 
-interface IForm {
+interface IStringsInObject {
   [key: string]: string;
 }
 
@@ -143,8 +139,9 @@ function Modal() {
   const loggedInUser = useRecoilValue(loggedInUserAtom);
   const likes = useRecoilValue(likesAtom);
   const [registerOn, setRegisterOn] = useRecoilState(registerModalOnAtom);
-  const { register, handleSubmit, reset } = useForm<IForm>();
-  const onSubmit = async (data: IForm) => {
+  const { register, handleSubmit, reset } = useForm<IStringsInObject>();
+
+  const onSubmit = async (data: IStringsInObject) => {
     const timestamp = Date.now();
     const likeId = `${loggedInUser?.uid.slice(0, 5)}_${timestamp}`;
     const baseInfo = {
@@ -154,21 +151,28 @@ function Modal() {
       updatedAt: timestamp,
       id: likeId,
     };
+
     try {
       await setDoc(doc(dbService, currentCategory, likeId), baseInfo);
-      await setDoc(
-        doc(dbService, currentCategory, `ranking_${loggedInUser?.uid}`),
-        { [likeId]: likes.length + 1 },
-        { merge: true }
-      ); //add ranking_uid document
+      await setDoc(doc(dbService, currentCategory, `ranking_${loggedInUser?.uid}`), { [likeId]: likes.length + 1 }, { merge: true }); //add ranking_uid document
     } catch (e) {
       console.error("Error adding document", e);
     }
-    reset({ title: "", singer: "", genre: "" });
+
+    const defaultValueAfterRegister: IStringsInObject = {};
+    myLikesTemplate[currentCategory].typingAttrs.forEach((attr) => {
+      defaultValueAfterRegister[attr] = "";
+    });
+    Object.keys(myLikesTemplate[currentCategory].selectingAttrs).forEach((attr) => {
+      defaultValueAfterRegister[attr] = myLikesTemplate[currentCategory].selectingAttrs[attr][0];
+    });
+    reset(defaultValueAfterRegister);
   };
+
   const modalCloseClick = () => {
     setRegisterOn(false);
   };
+
   return (
     <ModalWindow registerOn={registerOn}>
       <Header>
@@ -180,33 +184,24 @@ function Modal() {
           {myLikesTemplate[currentCategory]?.typingAttrs.map((header) => (
             <InputLine key={header}>
               <Label htmlFor="header">{header}</Label>
-              <Input
-                id={header}
-                placeholder={header}
-                autoComplete="off"
-                {...register(header, { required: true })}
-              />
+              <Input id={header} placeholder={header} autoComplete="off" {...register(header, { required: true })} />
             </InputLine>
           ))}
           {myLikesTemplate[currentCategory]?.selectingAttrs
-            ? Object.keys(myLikesTemplate[currentCategory].selectingAttrs).map(
-                (attr) => {
-                  return (
-                    <InputLine>
-                      <Label htmlFor={attr}>{attr}</Label>
-                      <select id={attr} {...register(attr, { required: true })}>
-                        {myLikesTemplate[currentCategory].selectingAttrs[
-                          attr
-                        ].map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
-                    </InputLine>
-                  );
-                }
-              )
+            ? Object.keys(myLikesTemplate[currentCategory].selectingAttrs).map((attr) => {
+                return (
+                  <InputLine key={attr}>
+                    <Label htmlFor={attr}>{attr}</Label>
+                    <select id={attr} {...register(attr, { required: true })}>
+                      {myLikesTemplate[currentCategory].selectingAttrs[attr].map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  </InputLine>
+                );
+              })
             : null}
           <Button>Add</Button>
         </Form>
