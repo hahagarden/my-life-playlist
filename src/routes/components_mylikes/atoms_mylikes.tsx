@@ -51,8 +51,3 @@ export const registerModalOnAtom = atom({
   key: "registerModalOn",
   default: false,
 });
-
-export const updateModalOnAtom = atom<boolean[]>({
-  key: "updateModalOnAtom",
-  default: [],
-});

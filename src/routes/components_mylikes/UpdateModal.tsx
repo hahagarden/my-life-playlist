@@ -1,6 +1,6 @@
-import { ILike, updateModalOnAtom, categoryTemplateAtom } from "./atoms_mylikes";
+import { ILike, categoryTemplateAtom } from "./atoms_mylikes";
 import styled, { keyframes } from "styled-components";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilValue } from "recoil";
 import { useForm } from "react-hook-form";
 import { doc, updateDoc } from "firebase/firestore";
 import { dbService } from "../../fbase";
@@ -17,17 +17,17 @@ const animation_show = keyframes`
   `;
 interface IUpdateModalProps {
   like: ILike;
-  rank: number;
+  modalClose: () => void;
 }
 
-const ModalWindow = styled.div<{ updateOn: boolean }>`
-  display: ${(props) => (props.updateOn ? "flex" : "none")};
+const ModalWindow = styled.div`
+  display: flex;
   background-color: white;
   border: 4px solid navy;
   border-radius: 15px;
   width: 500px;
   flex-direction: column;
-  position: absolute;
+  position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -98,38 +98,35 @@ const Label = styled.label`
 `;
 
 const Input = styled.input`
-    width:250px;
-    height: 35px;
-    border: none;
-    border-bottom: 1px solid gray;
-    outline: none;
-    background-color: inherit;
-    color: black;
-    font-size: 20px;
-    transition: border-bottom 0.3s;
-    &:focus {
-      border-bottom: 1px solid black;
-      }
-    }
-  `;
+  width: 250px;
+  height: 35px;
+  border: none;
+  border-bottom: 1px solid gray;
+  outline: none;
+  background-color: inherit;
+  color: black;
+  font-size: 20px;
+  transition: border-bottom 0.3s;
+  &:focus {
+    border-bottom: 1px solid black;
+  }
+`;
 
 const GenreInputLine = styled.div`
-    position: absolute;
-    left: -50px;
-    top: 95px;
-    margin-top: 15px;
-    width: 400px;
-    display: flex;
-    justify-content: center;
-    label {
-      &:nth-child(n+2):nth-child(-n+3) {
-        margin-top:3px;
-        transform: translateX(-5px);
-      }
+  position: absolute;
+  left: -50px;
+  top: 95px;
+  margin-top: 15px;
+  width: 400px;
+  display: flex;
+  justify-content: center;
+  label {
+    &:nth-child(n + 2):nth-child(-n + 3) {
+      margin-top: 3px;
+      transform: translateX(-5px);
     }
-  
-    }
-  `;
+  }
+`;
 
 const GenreInput = styled.input`
   border: none;
@@ -162,11 +159,10 @@ interface IForm {
   [key: string]: string | number;
 }
 
-function UpdateModal({ like, rank }: IUpdateModalProps) {
+function UpdateModal({ like, modalClose }: IUpdateModalProps) {
   const { category } = useParams();
   const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
   const currentCategory = category ?? "";
-  const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
   const { register, handleSubmit, setValue } = useForm<IForm>();
   useEffect(() => {
     myLikesTemplate[currentCategory]?.typingAttrs.forEach((header) => setValue(header, like[header]));
@@ -189,19 +185,12 @@ function UpdateModal({ like, rank }: IUpdateModalProps) {
       alert("updated.");
     }
   };
-  const modalCloseClick = () => {
-    setUpdateOn((current) => {
-      const copyCurrent = [...current];
-      const currentIndex = copyCurrent.indexOf(true);
-      copyCurrent.splice(currentIndex, 1, false);
-      return copyCurrent;
-    });
-  };
+
   return (
-    <ModalWindow updateOn={updateOn[rank]}>
+    <ModalWindow>
       <Header>
         <Title>Update</Title>
-        <CloseButton onClick={modalCloseClick}>×</CloseButton>
+        <CloseButton onClick={modalClose}>×</CloseButton>
       </Header>
       <Container>
         <Form onSubmit={handleSubmit(onSubmit)}>

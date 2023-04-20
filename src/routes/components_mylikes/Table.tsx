@@ -1,6 +1,5 @@
-import { useRecoilState } from "recoil";
-import React, { useEffect } from "react";
-import { updateModalOnAtom, ILike, likesRankingAtom, IRanking, likesAtom, categoryTemplateAtom } from "./atoms_mylikes";
+import { useState } from "react";
+import { ILike, likesRankingAtom, IRanking, likesAtom, categoryTemplateAtom } from "./atoms_mylikes";
 import styled from "styled-components";
 import UpdateModal from "./UpdateModal";
 import { DragDropContext, DropResult, Droppable, Draggable } from "react-beautiful-dnd";
@@ -79,18 +78,16 @@ function Table() {
   const loggedInUser = useRecoilValue(loggedInUserAtom);
   const ranking = useRecoilValue(likesRankingAtom);
   const likes = useRecoilValue(likesAtom);
-  const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
-  useEffect(() => {
-    setUpdateOn(() => Array.from({ length: likes.length }, () => false));
-  }, [likes]);
-  const modalOpen = (event: React.MouseEvent<HTMLTableRowElement, MouseEvent>) => {
-    console.log(event);
-    const targetIndex = likes.findIndex((obj) => obj.id == event.currentTarget.dataset.rbdDraggableId);
-    setUpdateOn((current) => {
-      const copyCurrent = [...current];
-      copyCurrent.splice(targetIndex, 1, true);
-      return copyCurrent;
-    });
+  const [updateOne, setUpdateOne] = useState<ILike | "">("");
+
+  const modalOpen = (id: string) => {
+    if (updateOne === "") {
+      setUpdateOne(likes.filter((like) => like.id === id)[0]);
+    }
+  };
+
+  const modalClose = () => {
+    if (updateOne !== "") setUpdateOne("");
   };
 
   const setNewRanking = async (newRanking: IRanking, likeId?: ILike["id"]) => {
@@ -102,6 +99,7 @@ function Table() {
     }
     //update firestore
   };
+
   const onDragEnd = ({ destination, source, draggableId }: DropResult) => {
     if (!destination) return;
     const copyRanking = Object.assign({}, ranking);
@@ -122,6 +120,7 @@ function Table() {
     }
     setNewRanking(copyRanking);
   };
+
   const onDelete = async (like: ILike) => {
     await deleteDoc(doc(dbService, currentCategory, like.id));
     const copyRanking = Object.assign({}, ranking);
@@ -131,9 +130,11 @@ function Table() {
     delete copyRanking[like.id];
     setNewRanking(copyRanking, like.id);
   };
+
   const TrLength =
     (myLikesTemplate[currentCategory].typingAttrs.length || 0) + Object.keys(myLikesTemplate[currentCategory].selectingAttrs).length + 1;
   console.log(myLikesTemplate);
+
   return (
     <>
       <DragDropContext onDragEnd={onDragEnd}>
@@ -157,7 +158,7 @@ function Table() {
                     {(provided, snapshot) => (
                       <Tr
                         headerLength={TrLength}
-                        onDoubleClick={modalOpen}
+                        onDoubleClick={() => modalOpen(like.id)}
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
@@ -171,12 +172,6 @@ function Table() {
                               <Td key={index}>{like[attr]}</Td>
                             ))
                           : null}
-
-                        {updateOn[ranking[like.id] - 1] ? (
-                          <td>
-                            <UpdateModal like={like} rank={ranking[like.id] - 1} />
-                          </td>
-                        ) : null}
                         <DeleteTd onClick={(e) => onDelete(like)}>
                           <DeleteButton>×</DeleteButton>
                         </DeleteTd>
@@ -189,6 +184,7 @@ function Table() {
             )}
           </Droppable>
         </TableArea>
+        {updateOne !== "" ? <UpdateModal like={updateOne} modalClose={modalClose} /> : ""}
       </DragDropContext>
     </>
   );
