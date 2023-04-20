@@ -92,9 +92,7 @@ function Home() {
     <>
       <Wrapper>
         <Header>
-          <Title>
-            {loggedInUser ? `${loggedInUser.email}'s ` : null} Project Machine
-          </Title>
+          <Title>{loggedInUser ? `${loggedInUser.email}'s ` : null} Project Machine</Title>
           <Menu>
             <Button>
               <Link to="/">Home</Link>

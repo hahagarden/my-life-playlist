@@ -1,11 +1,7 @@
 import styled from "styled-components";
 import Table from "./Table";
 import RegisterModal from "./RegisterModal";
-import {
-  currentCategoryAtom,
-  registerModalOnAtom,
-  likesAtom,
-} from "./atoms_mylikes";
+import { currentCategoryAtom, registerModalOnAtom, likesAtom } from "./atoms_mylikes";
 import { useRecoilState } from "recoil";
 import { Routes, Route, Link, useParams } from "react-router-dom";
 import Board from "./Board";
@@ -61,10 +57,7 @@ function MyLike() {
     setModalOn(true);
   };
   useEffect(() => {
-    const q = query(
-      collection(dbService, currentCategory),
-      where("creatorId", "==", loggedInUser?.uid)
-    );
+    const q = query(collection(dbService, currentCategory), where("creatorId", "==", loggedInUser?.uid));
     onSnapshot(q, (querySnapshot) => {
       const likesDB = [] as ILike[];
       querySnapshot.forEach((doc) => {
@@ -75,12 +68,9 @@ function MyLike() {
     console.log("useEffect&snapshot rendered.");
   }, [currentCategory]);
   useEffect(() => {
-    onSnapshot(
-      doc(dbService, currentCategory, `ranking_${loggedInUser?.uid}`),
-      (doc) => {
-        setRanking({ ...doc.data() });
-      }
-    );
+    onSnapshot(doc(dbService, currentCategory, `ranking_${loggedInUser?.uid}`), (doc) => {
+      setRanking({ ...doc.data() });
+    });
   }, [currentCategory]);
   useEffect(() => {
     const orderedLikes = likes.slice();

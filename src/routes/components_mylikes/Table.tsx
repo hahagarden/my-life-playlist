@@ -1,21 +1,9 @@
 import { useRecoilState } from "recoil";
 import React, { useEffect } from "react";
-import {
-  updateModalOnAtom,
-  ILike,
-  likesRankingAtom,
-  IRanking,
-  likesAtom,
-  categoryTemplateAtom,
-} from "./atoms_mylikes";
+import { updateModalOnAtom, ILike, likesRankingAtom, IRanking, likesAtom, categoryTemplateAtom } from "./atoms_mylikes";
 import styled from "styled-components";
 import UpdateModal from "./UpdateModal";
-import {
-  DragDropContext,
-  DropResult,
-  Droppable,
-  Draggable,
-} from "react-beautiful-dnd";
+import { DragDropContext, DropResult, Droppable, Draggable } from "react-beautiful-dnd";
 import { keyframes } from "styled-components";
 import { doc, updateDoc, deleteDoc, deleteField } from "firebase/firestore";
 import { dbService } from "../../fbase";
@@ -43,10 +31,7 @@ const Tr = styled.tr<{ headerLength: number }>`
   position: relative;
   font-size: 20px;
   display: grid;
-  grid-template-columns: 0.5fr 1.5fr repeat(
-      ${(props) => props.headerLength - 2},
-      1fr
-    );
+  grid-template-columns: 0.5fr 1.5fr repeat(${(props) => props.headerLength - 2}, 1fr);
 `;
 
 const Th = styled.th`
@@ -98,13 +83,9 @@ function Table() {
   useEffect(() => {
     setUpdateOn(() => Array.from({ length: likes.length }, () => false));
   }, [likes]);
-  const modalOpen = (
-    event: React.MouseEvent<HTMLTableRowElement, MouseEvent>
-  ) => {
+  const modalOpen = (event: React.MouseEvent<HTMLTableRowElement, MouseEvent>) => {
     console.log(event);
-    const targetIndex = likes.findIndex(
-      (obj) => obj.id == event.currentTarget.dataset.rbdDraggableId
-    );
+    const targetIndex = likes.findIndex((obj) => obj.id == event.currentTarget.dataset.rbdDraggableId);
     setUpdateOn((current) => {
       const copyCurrent = [...current];
       copyCurrent.splice(targetIndex, 1, true);
@@ -113,11 +94,7 @@ function Table() {
   };
 
   const setNewRanking = async (newRanking: IRanking, likeId?: ILike["id"]) => {
-    const rankingDoc = doc(
-      dbService,
-      currentCategory,
-      `ranking_${loggedInUser?.uid}`
-    );
+    const rankingDoc = doc(dbService, currentCategory, `ranking_${loggedInUser?.uid}`);
     if (likeId) {
       await updateDoc(rankingDoc, { ...newRanking, [likeId]: deleteField() });
     } else {
@@ -149,17 +126,13 @@ function Table() {
     await deleteDoc(doc(dbService, currentCategory, like.id));
     const copyRanking = Object.assign({}, ranking);
     Object.keys(copyRanking).forEach(
-      (songId) =>
-        copyRanking[songId] > copyRanking[like.id] &&
-        (copyRanking[songId] = copyRanking[songId] - 1)
+      (songId) => copyRanking[songId] > copyRanking[like.id] && (copyRanking[songId] = copyRanking[songId] - 1)
     );
     delete copyRanking[like.id];
     setNewRanking(copyRanking, like.id);
   };
   const TrLength =
-    (myLikesTemplate[currentCategory].typingAttrs.length || 0) +
-    Object.keys(myLikesTemplate[currentCategory].selectingAttrs).length +
-    1;
+    (myLikesTemplate[currentCategory].typingAttrs.length || 0) + Object.keys(myLikesTemplate[currentCategory].selectingAttrs).length + 1;
   console.log(myLikesTemplate);
   return (
     <>
@@ -168,20 +141,12 @@ function Table() {
           <thead>
             <Tr headerLength={TrLength}>
               <Th>Rank</Th>
-              {myLikesTemplate[currentCategory].typingAttrs.map(
-                (attr, index) => (
-                  <Th key={index}>
-                    {attr.charAt(0).toUpperCase() + attr.slice(1)}
-                  </Th>
-                )
-              )}
-              {Object.keys(myLikesTemplate[currentCategory].selectingAttrs).map(
-                (attr, index) => (
-                  <Th key={index}>
-                    {attr.charAt(0).toUpperCase() + attr.slice(1)}
-                  </Th>
-                )
-              )}
+              {myLikesTemplate[currentCategory].typingAttrs.map((attr, index) => (
+                <Th key={index}>{attr.charAt(0).toUpperCase() + attr.slice(1)}</Th>
+              ))}
+              {Object.keys(myLikesTemplate[currentCategory].selectingAttrs).map((attr, index) => (
+                <Th key={index}>{attr.charAt(0).toUpperCase() + attr.slice(1)}</Th>
+              ))}
             </Tr>
           </thead>
           <Droppable droppableId={"table"}>
@@ -198,25 +163,18 @@ function Table() {
                         {...provided.dragHandleProps}
                       >
                         <Td>{ranking[like.id]}</Td>
-                        {myLikesTemplate[currentCategory]?.typingAttrs.map(
-                          (attr) => (
-                            <Td key={attr}>{like[attr]}</Td>
-                          )
-                        )}
+                        {myLikesTemplate[currentCategory]?.typingAttrs.map((attr) => (
+                          <Td key={attr}>{like[attr]}</Td>
+                        ))}
                         {myLikesTemplate[currentCategory]?.selectingAttrs
-                          ? Object.keys(
-                              myLikesTemplate[currentCategory].selectingAttrs
-                            ).map((attr, index) => (
+                          ? Object.keys(myLikesTemplate[currentCategory].selectingAttrs).map((attr, index) => (
                               <Td key={index}>{like[attr]}</Td>
                             ))
                           : null}
 
                         {updateOn[ranking[like.id] - 1] ? (
                           <td>
-                            <UpdateModal
-                              like={like}
-                              rank={ranking[like.id] - 1}
-                            />
+                            <UpdateModal like={like} rank={ranking[like.id] - 1} />
                           </td>
                         ) : null}
                         <DeleteTd onClick={(e) => onDelete(like)}>

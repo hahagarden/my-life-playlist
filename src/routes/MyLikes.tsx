@@ -3,11 +3,7 @@ import { Routes, Route, useNavigate } from "react-router-dom";
 import { useSetRecoilState, useRecoilValue, useRecoilState } from "recoil";
 import { useEffect } from "react";
 import MyLike from "./components_mylikes/MyLike";
-import {
-  currentCategoryAtom,
-  categoryTemplateAtom,
-  addCategoryModalOnAtom,
-} from "./components_mylikes/atoms_mylikes";
+import { currentCategoryAtom, categoryTemplateAtom, addCategoryModalOnAtom } from "./components_mylikes/atoms_mylikes";
 import { dbService } from "../fbase";
 import { doc, onSnapshot } from "firebase/firestore";
 import { loggedInUserAtom } from "../atom";
@@ -77,25 +73,19 @@ const TitleButton = styled.button`
 function MyLikes() {
   const setCurrentCategory = useSetRecoilState(currentCategoryAtom);
   const navigate = useNavigate();
-  const categoryClick = (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
+  const categoryClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     const category = event.currentTarget.innerText;
     setCurrentCategory(category);
     navigate(`/mylikes/${category}/table`);
   };
   const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const [categoryTemplate, setCategoryTemplate] =
-    useRecoilState(categoryTemplateAtom);
+  const [categoryTemplate, setCategoryTemplate] = useRecoilState(categoryTemplateAtom);
   const [addCategory, setAddCategory] = useRecoilState(addCategoryModalOnAtom);
   useEffect(() => {
-    onSnapshot(
-      doc(dbService, "MyLikes_template", `template_${loggedInUser?.uid}`),
-      (doc) => {
-        const templateDB = { ...doc.data() };
-        setCategoryTemplate(templateDB);
-      }
-    );
+    onSnapshot(doc(dbService, "MyLikes_template", `template_${loggedInUser?.uid}`), (doc) => {
+      const templateDB = { ...doc.data() };
+      setCategoryTemplate(templateDB);
+    });
   }, []);
 
   const addCategoryClick = () => {

@@ -165,9 +165,7 @@ interface IAddCategoryForm {
 
 function AddCategoryModal() {
   const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const [addCategoryOn, setAddCategoryOn] = useRecoilState(
-    addCategoryModalOnAtom
-  );
+  const [addCategoryOn, setAddCategoryOn] = useRecoilState(addCategoryModalOnAtom);
   const { register, handleSubmit } = useForm<IAddCategoryForm>();
   const addCategorySubmit = async (data: IAddCategoryForm) => {
     const typingAttrs: string[] = [];
@@ -197,9 +195,7 @@ function AddCategoryModal() {
     setAddCategoryOn(false);
   };
 
-  const [addTemplateInput, setAddTemplateInput] = useState([
-    nanoid().slice(0, 10),
-  ]);
+  const [addTemplateInput, setAddTemplateInput] = useState([nanoid().slice(0, 10)]);
   const addTemplateInputClick = () => {
     setAddTemplateInput((prev) => [...prev, nanoid().slice(0, 10)]);
   };
@@ -211,9 +207,7 @@ function AddCategoryModal() {
     });
   };
 
-  const [addTemplateSelectingInput, setAddTemplateSelectingInput] = useState([
-    nanoid().slice(0, 10),
-  ]);
+  const [addTemplateSelectingInput, setAddTemplateSelectingInput] = useState([nanoid().slice(0, 10)]);
   const addTemplateSelectingInputClick = () => {
     setAddTemplateSelectingInput((prev) => [...prev, nanoid().slice(0, 10)]);
   };
@@ -250,8 +244,7 @@ function AddCategoryModal() {
                     {...register("typingAttr_name", {
                       required: true,
                       pattern: /^[a-z,]+$/i,
-                      validate: (value) =>
-                        value.includes("name") || value.includes("title"),
+                      validate: (value) => value.includes("name") || value.includes("title"),
                     })}
                   ></TemplateInput>
                   <Input disabled={true}></Input>
@@ -274,10 +267,7 @@ function AddCategoryModal() {
                       <AddButton type="button" onClick={addTemplateInputClick}>
                         ＋
                       </AddButton>
-                      <AddButton
-                        type="button"
-                        onClick={() => deleteTemplateInputClick(id)}
-                      >
+                      <AddButton type="button" onClick={() => deleteTemplateInputClick(id)}>
                         －
                       </AddButton>
                     </InputLine>
@@ -300,16 +290,10 @@ function AddCategoryModal() {
                         autoComplete="off"
                         {...register(`selectOptions_${id}`)}
                       ></TemplateInput>
-                      <AddButton
-                        type="button"
-                        onClick={addTemplateSelectingInputClick}
-                      >
+                      <AddButton type="button" onClick={addTemplateSelectingInputClick}>
                         ＋
                       </AddButton>
-                      <AddButton
-                        type="button"
-                        onClick={() => deleteTemplateSelectingInputClick(id)}
-                      >
+                      <AddButton type="button" onClick={() => deleteTemplateSelectingInputClick(id)}>
                         －
                       </AddButton>
                     </InputLine>

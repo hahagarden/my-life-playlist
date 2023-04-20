@@ -1,8 +1,4 @@
-import {
-  ILike,
-  updateModalOnAtom,
-  categoryTemplateAtom,
-} from "./atoms_mylikes";
+import { ILike, updateModalOnAtom, categoryTemplateAtom } from "./atoms_mylikes";
 import styled, { keyframes } from "styled-components";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { useForm } from "react-hook-form";
@@ -173,31 +169,19 @@ function UpdateModal({ like, rank }: IUpdateModalProps) {
   const [updateOn, setUpdateOn] = useRecoilState(updateModalOnAtom);
   const { register, handleSubmit, setValue } = useForm<IForm>();
   useEffect(() => {
-    myLikesTemplate[currentCategory]?.typingAttrs.forEach((header) =>
-      setValue(header, like[header])
-    );
-    Object.keys(myLikesTemplate[currentCategory]?.selectingAttrs).forEach(
-      (header) => setValue(header, like[header])
-    );
+    myLikesTemplate[currentCategory]?.typingAttrs.forEach((header) => setValue(header, like[header]));
+    Object.keys(myLikesTemplate[currentCategory]?.selectingAttrs).forEach((header) => setValue(header, like[header]));
   });
 
   const onSubmit = async (data: IForm) => {
-    if (
-      !myLikesTemplate[currentCategory]?.typingAttrs.filter(
-        (attr) => like[attr] !== data[attr]
-      )
-    ) {
+    if (!myLikesTemplate[currentCategory]?.typingAttrs.filter((attr) => like[attr] !== data[attr])) {
       alert("there is no change.");
       return;
     } else if (window.confirm("are you sure updating data?")) {
       const updatingSong = doc(dbService, currentCategory, like.id);
       let updatedLike: { [key: string]: string | number } = {};
-      myLikesTemplate[currentCategory]?.typingAttrs.forEach(
-        (attr) => (updatedLike[attr] = data[attr])
-      );
-      Object.keys(myLikesTemplate[currentCategory]?.selectingAttrs).forEach(
-        (attr) => (updatedLike[attr] = data[attr])
-      );
+      myLikesTemplate[currentCategory]?.typingAttrs.forEach((attr) => (updatedLike[attr] = data[attr]));
+      Object.keys(myLikesTemplate[currentCategory]?.selectingAttrs).forEach((attr) => (updatedLike[attr] = data[attr]));
       await updateDoc(updatingSong, {
         ...updatedLike,
         updatedAt: Date.now(),
@@ -224,33 +208,24 @@ function UpdateModal({ like, rank }: IUpdateModalProps) {
           {myLikesTemplate[currentCategory]?.typingAttrs.map((header) => (
             <InputLine key={header}>
               <Label htmlFor="header">{header}</Label>
-              <Input
-                id={header}
-                placeholder={header}
-                autoComplete="off"
-                {...register(header, { required: true })}
-              />
+              <Input id={header} placeholder={header} autoComplete="off" {...register(header, { required: true })} />
             </InputLine>
           ))}
           {myLikesTemplate[currentCategory]?.selectingAttrs
-            ? Object.keys(myLikesTemplate[currentCategory]?.selectingAttrs).map(
-                (attr) => {
-                  return (
-                    <InputLine>
-                      <Label htmlFor={attr}>{attr}</Label>
-                      <select id={attr} {...register(attr, { required: true })}>
-                        {myLikesTemplate[currentCategory]?.selectingAttrs[
-                          attr
-                        ].map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
-                    </InputLine>
-                  );
-                }
-              )
+            ? Object.keys(myLikesTemplate[currentCategory]?.selectingAttrs).map((attr) => {
+                return (
+                  <InputLine>
+                    <Label htmlFor={attr}>{attr}</Label>
+                    <select id={attr} {...register(attr, { required: true })}>
+                      {myLikesTemplate[currentCategory]?.selectingAttrs[attr].map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  </InputLine>
+                );
+              })
             : null}
           <Button>Modify</Button>
         </Form>

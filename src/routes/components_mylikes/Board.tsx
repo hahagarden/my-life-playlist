@@ -59,9 +59,7 @@ function Board() {
   const { category } = useParams();
   const currentCategory = category ?? "";
   const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
-  const [currentBoard, setCurrentBoard] = useState<string>(
-    Object.keys(myLikesTemplate[currentCategory].selectingAttrs)[0]
-  );
+  const [currentBoard, setCurrentBoard] = useState<string>(Object.keys(myLikesTemplate[currentCategory].selectingAttrs)[0]);
   const boardClick = (attr: string) => {
     setCurrentBoard(attr);
   };
@@ -71,26 +69,18 @@ function Board() {
   return (
     <Wrapper>
       <Categories>
-        {Object.keys(myLikesTemplate[currentCategory].selectingAttrs).map(
-          (attr) => (
-            <Button key={attr} onClick={() => boardClick(attr)}>
-              {attr}
-            </Button>
-          )
-        )}
+        {Object.keys(myLikesTemplate[currentCategory].selectingAttrs).map((attr) => (
+          <Button key={attr} onClick={() => boardClick(attr)}>
+            {attr}
+          </Button>
+        ))}
       </Categories>
       {currentBoard ? (
         <DragDropContext onDragEnd={onDragEnd}>
           <Boards>
-            {myLikesTemplate[currentCategory].selectingAttrs[currentBoard].map(
-              (option, index) => (
-                <PaintBoard
-                  key={index}
-                  currentBoard={currentBoard}
-                  boardId={option}
-                />
-              )
-            )}
+            {myLikesTemplate[currentCategory].selectingAttrs[currentBoard].map((option, index) => (
+              <PaintBoard key={index} currentBoard={currentBoard} boardId={option} />
+            ))}
           </Boards>
         </DragDropContext>
       ) : null}

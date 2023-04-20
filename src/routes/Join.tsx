@@ -161,12 +161,7 @@ function Join() {
         </InputLine>
         <InputLine>
           <Label htmlFor="pwConfirm">confirm password</Label>
-          <Input
-            {...register("pwConfirm", { required: "*" })}
-            id="pwConfirm"
-            placeholder="confirm password"
-            autoComplete="off"
-          ></Input>
+          <Input {...register("pwConfirm", { required: "*" })} id="pwConfirm" placeholder="confirm password" autoComplete="off"></Input>
           <Span>{errors?.pwConfirm?.message}</Span>
         </InputLine>
         <Button>Join</Button>
