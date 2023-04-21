@@ -1,15 +1,13 @@
 import styled from "styled-components";
 import Table from "./Table";
 import RegisterModal from "./RegisterModal";
-import { currentCategoryAtom, registerModalOnAtom, likesAtom } from "./atoms_mylikes";
+import { likesAtom, ILike, likesRankingAtom } from "./atoms_mylikes";
 import { useRecoilState } from "recoil";
 import { Routes, Route, Link, useParams } from "react-router-dom";
 import Board from "./Board";
 import { onSnapshot, query, collection, where, doc } from "firebase/firestore";
 import { dbService } from "../../fbase";
-import { useEffect } from "react";
-import { ILike } from "./atoms_mylikes";
-import { likesRankingAtom } from "./atoms_mylikes";
+import { useEffect, useState } from "react";
 import { useRecoilValue } from "recoil";
 import { loggedInUserAtom } from "../../atom";
 
@@ -48,14 +46,19 @@ const Button = styled.button`
 function MyLike() {
   const { category } = useParams();
   const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const recoilCategory = useRecoilValue(currentCategoryAtom);
   const currentCategory = category ?? "";
-  const [modalOn, setModalOn] = useRecoilState(registerModalOnAtom);
+  const [isModalOn, setIsModalOn] = useState(false);
   const [likes, setLikes] = useRecoilState(likesAtom);
   const [ranking, setRanking] = useRecoilState(likesRankingAtom);
-  const modalOpen = () => {
-    setModalOn(true);
+
+  const onModalOnClick = () => {
+    setIsModalOn(true);
   };
+
+  const onModalOffClick = () => {
+    setIsModalOn(false);
+  };
+
   useEffect(() => {
     const q = query(collection(dbService, currentCategory), where("creatorId", "==", loggedInUser?.uid));
     onSnapshot(q, (querySnapshot) => {
@@ -67,11 +70,13 @@ function MyLike() {
     });
     console.log("useEffect&snapshot rendered.");
   }, [currentCategory]);
+
   useEffect(() => {
     onSnapshot(doc(dbService, currentCategory, `ranking_${loggedInUser?.uid}`), (doc) => {
       setRanking({ ...doc.data() });
     });
   }, [currentCategory]);
+
   useEffect(() => {
     const orderedLikes = likes.slice();
     orderedLikes.sort((a, b) => ranking[a.id] - ranking[b.id]);
@@ -82,8 +87,7 @@ function MyLike() {
     <>
       <Wrapper>
         <Menu>
-          <Button onClick={modalOpen}>Register</Button>
-          {modalOn && <RegisterModal />}
+          <Button onClick={onModalOnClick}>Register</Button>
           <Button>
             <Link to="table">Ranking Table</Link>
           </Button>
@@ -96,6 +100,7 @@ function MyLike() {
         <Route path="table" element={<Table />} />
         <Route path="genre" element={<Board />} />
       </Routes>
+      {isModalOn && <RegisterModal onModalOffClick={onModalOffClick} />}
     </>
   );
 }

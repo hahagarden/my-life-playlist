@@ -1,11 +1,10 @@
 import styled, { keyframes } from "styled-components";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useRecoilValue, useRecoilState } from "recoil";
+import { useRecoilValue } from "recoil";
 import { dbService } from "../../fbase";
 import { loggedInUserAtom } from "../../atom";
 import { setDoc, doc } from "firebase/firestore";
-import { addCategoryModalOnAtom } from "./atoms_mylikes";
 import { nanoid } from "nanoid";
 
 const animation_show = keyframes`
@@ -17,20 +16,27 @@ const animation_show = keyframes`
   };
 `;
 
-const ModalWindow = styled.div<{ addCategoryOn: boolean }>`
-  display: ${(props) => (props.addCategoryOn ? "flex" : "none")};
+const ModalBackground = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const ModalWindow = styled.div`
+  display: "flex";
   background-color: white;
   border: 4px solid navy;
   border-radius: 15px;
   width: 550px;
   flex-direction: column;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   justify-content: center;
   align-items: center;
-  z-index: 999;
   animation: ${animation_show} 0.1s ease-out;
 `;
 
@@ -163,9 +169,12 @@ interface IAddCategoryForm {
   [attrs: string]: string;
 }
 
-function AddCategoryModal() {
+interface IAddCategoryModalProps {
+  onModalOffClick: () => void;
+}
+
+function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
   const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const [addCategoryOn, setAddCategoryOn] = useRecoilState(addCategoryModalOnAtom);
   const { register, handleSubmit } = useForm<IAddCategoryForm>();
   const addCategorySubmit = async (data: IAddCategoryForm) => {
     const typingAttrs: string[] = [];
@@ -190,9 +199,6 @@ function AddCategoryModal() {
     } catch (e) {
       console.error("Error adding document", e);
     }
-  };
-  const modalCloseClick = () => {
-    setAddCategoryOn(false);
   };
 
   const [addTemplateInput, setAddTemplateInput] = useState([nanoid().slice(0, 10)]);
@@ -221,90 +227,92 @@ function AddCategoryModal() {
 
   return (
     <>
-      <ModalWindow addCategoryOn={addCategoryOn}>
-        <Form onSubmit={handleSubmit(addCategorySubmit)}>
-          <Header>
-            <Title>
-              <TemplateHeaderInput
-                id="categoryName"
-                placeholder="Category Name"
-                autoComplete="off"
-                {...register("categoryName", { required: true })}
-              ></TemplateHeaderInput>
-            </Title>
-            <CloseButton onClick={modalCloseClick}>×</CloseButton>
-          </Header>
-          <table id="table">
-            <tbody>
-              <tr>
-                <InputLine>
-                  <TemplateInput
-                    placeholder="'title' or 'name'"
-                    autoComplete="off"
-                    {...register("typingAttr_name", {
-                      required: true,
-                      pattern: /^[a-z,]+$/i,
-                      validate: (value) => value.includes("name") || value.includes("title"),
-                    })}
-                  ></TemplateInput>
-                  <Input disabled={true}></Input>
-                </InputLine>
-              </tr>
+      <ModalBackground onClick={onModalOffClick}>
+        <ModalWindow onClick={(event) => event.stopPropagation()}>
+          <Form onSubmit={handleSubmit(addCategorySubmit)}>
+            <Header>
+              <Title>
+                <TemplateHeaderInput
+                  id="categoryName"
+                  placeholder="Category Name"
+                  autoComplete="off"
+                  {...register("categoryName", { required: true })}
+                ></TemplateHeaderInput>
+              </Title>
+              <CloseButton onClick={onModalOffClick}>×</CloseButton>
+            </Header>
+            <table id="table">
+              <tbody>
+                <tr>
+                  <InputLine>
+                    <TemplateInput
+                      placeholder="'title' or 'name'"
+                      autoComplete="off"
+                      {...register("typingAttr_name", {
+                        required: true,
+                        pattern: /^[a-z,]+$/i,
+                        validate: (value) => value.includes("name") || value.includes("title"),
+                      })}
+                    ></TemplateInput>
+                    <Input disabled={true}></Input>
+                  </InputLine>
+                </tr>
 
-              {addTemplateInput.map((id) => {
-                return (
-                  <tr key={id}>
-                    <InputLine>
-                      <TemplateInput
-                        placeholder="typing attribute"
-                        autoComplete="off"
-                        {...register(`typingAttr_${id}`, {
-                          required: true,
-                          pattern: /^[a-z0-9]+$/i,
-                        })}
-                      ></TemplateInput>
-                      <Input disabled={true}></Input>
-                      <AddButton type="button" onClick={addTemplateInputClick}>
-                        ＋
-                      </AddButton>
-                      <AddButton type="button" onClick={() => deleteTemplateInputClick(id)}>
-                        －
-                      </AddButton>
-                    </InputLine>
-                  </tr>
-                );
-              })}
-              {addTemplateSelectingInput.map((id) => {
-                return (
-                  <tr key={id}>
-                    <InputLine>
-                      <TemplateInput
-                        placeholder="selecting attribute"
-                        id="selectingAttr"
-                        autoComplete="off"
-                        {...register(`selectingAttr_${id}`)}
-                      ></TemplateInput>
-                      <TemplateInput
-                        placeholder="options(,)"
-                        id="selectOptions"
-                        autoComplete="off"
-                        {...register(`selectOptions_${id}`)}
-                      ></TemplateInput>
-                      <AddButton type="button" onClick={addTemplateSelectingInputClick}>
-                        ＋
-                      </AddButton>
-                      <AddButton type="button" onClick={() => deleteTemplateSelectingInputClick(id)}>
-                        －
-                      </AddButton>
-                    </InputLine>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          <Button>submit</Button>
-        </Form>
-      </ModalWindow>
+                {addTemplateInput.map((id) => {
+                  return (
+                    <tr key={id}>
+                      <InputLine>
+                        <TemplateInput
+                          placeholder="typing attribute"
+                          autoComplete="off"
+                          {...register(`typingAttr_${id}`, {
+                            required: true,
+                            pattern: /^[a-z0-9]+$/i,
+                          })}
+                        ></TemplateInput>
+                        <Input disabled={true}></Input>
+                        <AddButton type="button" onClick={addTemplateInputClick}>
+                          ＋
+                        </AddButton>
+                        <AddButton type="button" onClick={() => deleteTemplateInputClick(id)}>
+                          －
+                        </AddButton>
+                      </InputLine>
+                    </tr>
+                  );
+                })}
+                {addTemplateSelectingInput.map((id) => {
+                  return (
+                    <tr key={id}>
+                      <InputLine>
+                        <TemplateInput
+                          placeholder="selecting attribute"
+                          id="selectingAttr"
+                          autoComplete="off"
+                          {...register(`selectingAttr_${id}`)}
+                        ></TemplateInput>
+                        <TemplateInput
+                          placeholder="options(,)"
+                          id="selectOptions"
+                          autoComplete="off"
+                          {...register(`selectOptions_${id}`)}
+                        ></TemplateInput>
+                        <AddButton type="button" onClick={addTemplateSelectingInputClick}>
+                          ＋
+                        </AddButton>
+                        <AddButton type="button" onClick={() => deleteTemplateSelectingInputClick(id)}>
+                          －
+                        </AddButton>
+                      </InputLine>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <Button>submit</Button>
+          </Form>
+        </ModalWindow>
+      </ModalBackground>
     </>
   );
 }

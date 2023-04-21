@@ -41,13 +41,3 @@ export const likesRankingAtom = atom<IRanking>({
   key: "likesRanking",
   default: {},
 });
-
-export const addCategoryModalOnAtom = atom({
-  key: "addCategoryModalOn",
-  default: false,
-});
-
-export const registerModalOnAtom = atom({
-  key: "registerModalOn",
-  default: false,
-});

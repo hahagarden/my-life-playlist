@@ -20,6 +20,18 @@ interface IUpdateModalProps {
   modalClose: () => void;
 }
 
+const ModalBackground = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
 const ModalWindow = styled.div`
   display: flex;
   background-color: white;
@@ -27,13 +39,9 @@ const ModalWindow = styled.div`
   border-radius: 15px;
   width: 500px;
   flex-direction: column;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
   justify-content: center;
   align-items: center;
-  z-index: 999;
   animation: ${animation_show} 0.1s ease-out;
 `;
 
@@ -187,39 +195,41 @@ function UpdateModal({ like, modalClose }: IUpdateModalProps) {
   };
 
   return (
-    <ModalWindow>
-      <Header>
-        <Title>Update</Title>
-        <CloseButton onClick={modalClose}>×</CloseButton>
-      </Header>
-      <Container>
-        <Form onSubmit={handleSubmit(onSubmit)}>
-          {myLikesTemplate[currentCategory]?.typingAttrs.map((header) => (
-            <InputLine key={header}>
-              <Label htmlFor="header">{header}</Label>
-              <Input id={header} placeholder={header} autoComplete="off" {...register(header, { required: true })} />
-            </InputLine>
-          ))}
-          {myLikesTemplate[currentCategory]?.selectingAttrs
-            ? Object.keys(myLikesTemplate[currentCategory]?.selectingAttrs).map((attr) => {
-                return (
-                  <InputLine>
-                    <Label htmlFor={attr}>{attr}</Label>
-                    <select id={attr} {...register(attr, { required: true })}>
-                      {myLikesTemplate[currentCategory]?.selectingAttrs[attr].map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                  </InputLine>
-                );
-              })
-            : null}
-          <Button>Modify</Button>
-        </Form>
-      </Container>
-    </ModalWindow>
+    <ModalBackground onClick={modalClose}>
+      <ModalWindow onClick={(event) => event.stopPropagation()}>
+        <Header>
+          <Title>Update</Title>
+          <CloseButton onClick={modalClose}>×</CloseButton>
+        </Header>
+        <Container>
+          <Form onSubmit={handleSubmit(onSubmit)}>
+            {myLikesTemplate[currentCategory]?.typingAttrs.map((header) => (
+              <InputLine key={header}>
+                <Label htmlFor="header">{header}</Label>
+                <Input id={header} placeholder={header} autoComplete="off" {...register(header, { required: true })} />
+              </InputLine>
+            ))}
+            {myLikesTemplate[currentCategory]?.selectingAttrs
+              ? Object.keys(myLikesTemplate[currentCategory]?.selectingAttrs).map((attr) => {
+                  return (
+                    <InputLine>
+                      <Label htmlFor={attr}>{attr}</Label>
+                      <select id={attr} {...register(attr, { required: true })}>
+                        {myLikesTemplate[currentCategory]?.selectingAttrs[attr].map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    </InputLine>
+                  );
+                })
+              : null}
+            <Button>Modify</Button>
+          </Form>
+        </Container>
+      </ModalWindow>
+    </ModalBackground>
   );
 }
 

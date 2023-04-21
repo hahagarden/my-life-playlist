@@ -1,9 +1,9 @@
 import styled from "styled-components";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { useSetRecoilState, useRecoilValue, useRecoilState } from "recoil";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import MyLike from "./components_mylikes/MyLike";
-import { currentCategoryAtom, categoryTemplateAtom, addCategoryModalOnAtom } from "./components_mylikes/atoms_mylikes";
+import { currentCategoryAtom, categoryTemplateAtom } from "./components_mylikes/atoms_mylikes";
 import { dbService } from "../fbase";
 import { doc, onSnapshot } from "firebase/firestore";
 import { loggedInUserAtom } from "../atom";
@@ -80,7 +80,7 @@ function MyLikes() {
   };
   const loggedInUser = useRecoilValue(loggedInUserAtom);
   const [categoryTemplate, setCategoryTemplate] = useRecoilState(categoryTemplateAtom);
-  const [addCategory, setAddCategory] = useRecoilState(addCategoryModalOnAtom);
+  const [isModalOn, setIsModalOn] = useState(false);
   useEffect(() => {
     onSnapshot(doc(dbService, "MyLikes_template", `template_${loggedInUser?.uid}`), (doc) => {
       const templateDB = { ...doc.data() };
@@ -88,8 +88,12 @@ function MyLikes() {
     });
   }, []);
 
-  const addCategoryClick = () => {
-    setAddCategory(true);
+  const onModalOnClick = () => {
+    setIsModalOn(true);
+  };
+
+  const onModalOffClick = () => {
+    setIsModalOn(false);
   };
 
   return (
@@ -98,8 +102,7 @@ function MyLikes() {
         <Header>
           <Title>
             My Likes
-            <TitleButton onClick={addCategoryClick}> + </TitleButton>
-            {addCategory && <AddCategoryModal />}
+            <TitleButton onClick={onModalOnClick}> + </TitleButton>
           </Title>
           <Categories>
             {Object.keys(categoryTemplate).map((category) => (
@@ -113,6 +116,7 @@ function MyLikes() {
           <Route path="/:category/*" element={<MyLike />} />
         </Routes>
       </Wrapper>
+      {isModalOn && <AddCategoryModal onModalOffClick={onModalOffClick} />}
     </>
   );
 }

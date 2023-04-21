@@ -1,7 +1,6 @@
 import styled, { keyframes } from "styled-components";
-import { registerModalOnAtom, likesAtom, categoryTemplateAtom } from "./atoms_mylikes";
+import { likesAtom, categoryTemplateAtom } from "./atoms_mylikes";
 import { useForm } from "react-hook-form";
-import { useRecoilState } from "recoil";
 import { dbService } from "../../fbase";
 import { setDoc, doc } from "firebase/firestore";
 import { useRecoilValue } from "recoil";
@@ -17,25 +16,34 @@ const animation_show = keyframes`
   };
 `;
 
-const ModalWindow = styled.div<{ registerOn: boolean }>`
-  display: ${(props) => (props.registerOn ? "flex" : "none")};
+const ModalBackground = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const ModalWindow = styled.div`
+  display: "flex";
   background-color: white;
   border: 4px solid navy;
   border-radius: 15px;
   width: 500px;
   flex-direction: column;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
   justify-content: center;
   align-items: center;
-  z-index: 999;
   animation: ${animation_show} 0.1s ease-out;
 `;
 
 const Header = styled.div`
   display: flex;
+  justify-content: center;
   margin: 25px;
 `;
 
@@ -132,13 +140,16 @@ interface IStringsInObject {
   [key: string]: string;
 }
 
-function Modal() {
+interface IModalProps {
+  onModalOffClick: () => void;
+}
+
+function Modal({ onModalOffClick }: IModalProps) {
   const { category } = useParams();
   const currentCategory = category ?? "";
   const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
   const loggedInUser = useRecoilValue(loggedInUserAtom);
   const likes = useRecoilValue(likesAtom);
-  const [registerOn, setRegisterOn] = useRecoilState(registerModalOnAtom);
   const { register, handleSubmit, reset } = useForm<IStringsInObject>();
 
   const onSubmit = async (data: IStringsInObject) => {
@@ -154,7 +165,11 @@ function Modal() {
 
     try {
       await setDoc(doc(dbService, currentCategory, likeId), baseInfo);
-      await setDoc(doc(dbService, currentCategory, `ranking_${loggedInUser?.uid}`), { [likeId]: likes.length + 1 }, { merge: true }); //add ranking_uid document
+      await setDoc(
+        doc(dbService, currentCategory, `ranking_${loggedInUser?.uid}`),
+        { [likeId]: likes.length + 1 },
+        { merge: true }
+      ); //add ranking_uid document
     } catch (e) {
       console.error("Error adding document", e);
     }
@@ -169,44 +184,42 @@ function Modal() {
     reset(defaultValueAfterRegister);
   };
 
-  const modalCloseClick = () => {
-    setRegisterOn(false);
-  };
-
   return (
-    <ModalWindow registerOn={registerOn}>
-      <Header>
-        <Title>Register</Title>
-        <CloseButton onClick={modalCloseClick}>×</CloseButton>
-      </Header>
-      <Container>
-        <Form onSubmit={handleSubmit(onSubmit)}>
-          {myLikesTemplate[currentCategory]?.typingAttrs.map((header) => (
-            <InputLine key={header}>
-              <Label htmlFor="header">{header}</Label>
-              <Input id={header} placeholder={header} autoComplete="off" {...register(header, { required: true })} />
-            </InputLine>
-          ))}
-          {myLikesTemplate[currentCategory]?.selectingAttrs
-            ? Object.keys(myLikesTemplate[currentCategory].selectingAttrs).map((attr) => {
-                return (
-                  <InputLine key={attr}>
-                    <Label htmlFor={attr}>{attr}</Label>
-                    <select id={attr} {...register(attr, { required: true })}>
-                      {myLikesTemplate[currentCategory].selectingAttrs[attr].map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                  </InputLine>
-                );
-              })
-            : null}
-          <Button>Add</Button>
-        </Form>
-      </Container>
-    </ModalWindow>
+    <ModalBackground onClick={onModalOffClick}>
+      <ModalWindow onClick={(event) => event.stopPropagation()}>
+        <Header>
+          <Title>Register</Title>
+          <CloseButton onClick={onModalOffClick}>×</CloseButton>
+        </Header>
+        <Container>
+          <Form onSubmit={handleSubmit(onSubmit)}>
+            {myLikesTemplate[currentCategory]?.typingAttrs.map((header) => (
+              <InputLine key={header}>
+                <Label htmlFor="header">{header}</Label>
+                <Input id={header} placeholder={header} autoComplete="off" {...register(header, { required: true })} />
+              </InputLine>
+            ))}
+            {myLikesTemplate[currentCategory]?.selectingAttrs
+              ? Object.keys(myLikesTemplate[currentCategory].selectingAttrs).map((attr) => {
+                  return (
+                    <InputLine key={attr}>
+                      <Label htmlFor={attr}>{attr}</Label>
+                      <select id={attr} {...register(attr, { required: true })}>
+                        {myLikesTemplate[currentCategory].selectingAttrs[attr].map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    </InputLine>
+                  );
+                })
+              : null}
+            <Button>Add</Button>
+          </Form>
+        </Container>
+      </ModalWindow>
+    </ModalBackground>
   );
 }
 

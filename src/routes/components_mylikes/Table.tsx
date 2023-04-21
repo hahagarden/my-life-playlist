@@ -80,13 +80,13 @@ function Table() {
   const likes = useRecoilValue(likesAtom);
   const [updateOne, setUpdateOne] = useState<ILike | "">("");
 
-  const modalOpen = (id: string) => {
+  const onModalOnDbClick = (id: string) => {
     if (updateOne === "") {
       setUpdateOne(likes.filter((like) => like.id === id)[0]);
     }
   };
 
-  const modalClose = () => {
+  const onModalOffClick = () => {
     if (updateOne !== "") setUpdateOne("");
   };
 
@@ -132,7 +132,9 @@ function Table() {
   };
 
   const TrLength =
-    (myLikesTemplate[currentCategory].typingAttrs.length || 0) + Object.keys(myLikesTemplate[currentCategory].selectingAttrs).length + 1;
+    (myLikesTemplate[currentCategory].typingAttrs.length || 0) +
+    Object.keys(myLikesTemplate[currentCategory].selectingAttrs).length +
+    1;
   console.log(myLikesTemplate);
 
   return (
@@ -158,7 +160,7 @@ function Table() {
                     {(provided, snapshot) => (
                       <Tr
                         headerLength={TrLength}
-                        onDoubleClick={() => modalOpen(like.id)}
+                        onDoubleClick={() => onModalOnDbClick(like.id)}
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
@@ -184,7 +186,7 @@ function Table() {
             )}
           </Droppable>
         </TableArea>
-        {updateOne !== "" ? <UpdateModal like={updateOne} modalClose={modalClose} /> : ""}
+        {updateOne !== "" ? <UpdateModal like={updateOne} modalClose={onModalOffClick} /> : ""}
       </DragDropContext>
     </>
   );
