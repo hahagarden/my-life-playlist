@@ -48,6 +48,7 @@ function MyLike() {
   const loggedInUser = useRecoilValue(loggedInUserAtom);
   const currentCategory = category ?? "";
   const [isModalOn, setIsModalOn] = useState(false);
+  const [rareLikes, setRareLikes] = useState<ILike[]>([]);
   const [likes, setLikes] = useRecoilState(likesAtom);
   const [ranking, setRanking] = useRecoilState(likesRankingAtom);
 
@@ -66,7 +67,7 @@ function MyLike() {
       querySnapshot.forEach((doc) => {
         likesDB.push({ ...(doc.data() as ILike) });
       });
-      setLikes(likesDB);
+      setRareLikes(likesDB);
     });
     console.log("useEffect&snapshot rendered.");
   }, [currentCategory]);
@@ -76,6 +77,12 @@ function MyLike() {
       setRanking({ ...doc.data() });
     });
   }, [currentCategory]);
+
+  useEffect(() => {
+    const orderedLikes = rareLikes.slice();
+    orderedLikes.sort((a, b) => ranking[a.id] - ranking[b.id]);
+    setLikes(orderedLikes);
+  }, [rareLikes]);
 
   useEffect(() => {
     const orderedLikes = likes.slice();
