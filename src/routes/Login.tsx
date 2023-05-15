@@ -31,7 +31,7 @@ const Label = styled.label`
 `;
 
 const Input = styled.input`
-width: 250px;
+  width: 250px;
   height: 30px;
   border: none;
   border-bottom: 1px solid gray;
@@ -41,9 +41,8 @@ width: 250px;
   font-size: 20px;
   transition: border-bottom 0.3s;
   &:focus {
-    color:#fff200;
+    color: #fff200;
     border-bottom: 1px solid white;
-    }
   }
 `;
 
@@ -71,6 +70,7 @@ const Button = styled.button`
     color: navy;
   }
 `;
+
 interface ILoginForm {
   email: string;
   pw: string;
@@ -83,6 +83,7 @@ function Login() {
     handleSubmit,
     formState: { errors },
   } = useForm<ILoginForm>();
+
   const onSubmit = (data: ILoginForm) => {
     signInWithEmailAndPassword(authService, data.email, data.pw)
       .then(() => {
@@ -104,6 +105,7 @@ function Login() {
         }
       });
   };
+
   return (
     <Wrapper>
       <Form onSubmit={handleSubmit(onSubmit)}>

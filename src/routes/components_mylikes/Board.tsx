@@ -1,10 +1,10 @@
-import { DragDropContext, DropResult } from "react-beautiful-dnd";
-import { useState } from "react";
-import { useParams } from "react-router-dom";
-import { useRecoilValue } from "recoil";
-import styled, { keyframes } from "styled-components";
-import { categoryTemplateAtom } from "./atoms_mylikes";
-import PaintBoard from "./PaintBoard";
+import { DragDropContext, DropResult } from 'react-beautiful-dnd';
+import { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { useRecoilValue } from 'recoil';
+import styled, { keyframes } from 'styled-components';
+import { categoryTemplateAtom } from './atoms_mylikes';
+import PaintBoard from './PaintBoard';
 
 const animation_boards = keyframes`
   from{
@@ -49,15 +49,15 @@ const Button = styled.button`
   color: black;
   text-decoration: underline;
   transition: 0.2s;
-  cursor:pointer;
+  cursor: pointer;
   &:hover {
-    color: #ff0063;}
+    color: #ff0063;
   }
 `;
 
 function Board() {
   const { category } = useParams();
-  const currentCategory = category ?? "";
+  const currentCategory = category ?? '';
   const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
   const [currentBoard, setCurrentBoard] = useState<string>(Object.keys(myLikesTemplate[currentCategory].selectingAttrs)[0]);
   const boardClick = (attr: string) => {

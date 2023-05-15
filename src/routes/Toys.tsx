@@ -47,6 +47,7 @@ const Toy = styled.div`
 
 function Toys() {
   const loggedInUser = useRecoilValue(loggedInUserAtom);
+
   return (
     <Container>
       <Shelf>

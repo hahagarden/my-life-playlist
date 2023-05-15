@@ -1,13 +1,13 @@
-import styled from "styled-components";
-import { Routes, Route, Link } from "react-router-dom";
-import { useRecoilValue } from "recoil";
-import { signOut } from "firebase/auth";
-import Login from "./Login";
-import Join from "./Join";
-import MyLikes from "./MyLikes";
-import Toys from "./Toys";
-import { loggedInUserAtom } from "../atom";
-import { authService } from "../fbase";
+import styled from 'styled-components';
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { useRecoilValue } from 'recoil';
+import { signOut } from 'firebase/auth';
+import Login from './Login';
+import Join from './Join';
+import MyLikes from './MyLikes';
+import Toys from './Toys';
+import { loggedInUserAtom } from '../atom';
+import { authService } from '../fbase';
 
 const Wrapper = styled.div`
   width: 100vw;
@@ -82,10 +82,14 @@ const Container = styled.div`
 
 function Home() {
   const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const LogOutClick = () => {
-    if (window.confirm("Do you want to log out?"))
+  const navigate = useNavigate();
+  const onLogOutClick = () => {
+    if (window.confirm('Do you want to log out?'))
       signOut(authService)
-        .then(() => alert("logged out"))
+        .then(() => {
+          alert('logged out');
+          navigate('/');
+        })
         .catch();
   };
   return (
@@ -95,26 +99,26 @@ function Home() {
           <Title>{loggedInUser ? `${loggedInUser.email}'s ` : null} Project Machine</Title>
           <Menu>
             <Button>
-              <Link to="/">Home</Link>
+              <Link to='/'>Home</Link>
             </Button>
             {loggedInUser ? (
-              <Button onClick={LogOutClick}>Logout</Button>
+              <Button onClick={onLogOutClick}>Logout</Button>
             ) : (
               <Button>
-                <Link to="/login">Login</Link>
+                <Link to='/login'>Login</Link>
               </Button>
             )}
             <Button>
-              <Link to="/join">Join </Link>
+              <Link to='/join'>Join </Link>
             </Button>
           </Menu>
         </Header>
         <Container>
           <Routes>
-            <Route path="/" element={<Toys />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/join" element={<Join />} />
-            <Route path="/mylikes/*" element={<MyLikes />} />
+            <Route path='/' element={<Toys />} />
+            <Route path='/login' element={<Login />} />
+            <Route path='/join' element={<Join />} />
+            <Route path='/mylikes/*' element={<MyLikes />} />
           </Routes>
         </Container>
       </Wrapper>

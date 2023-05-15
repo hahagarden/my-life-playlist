@@ -34,7 +34,7 @@ const Label = styled.label`
 `;
 
 const Input = styled.input`
-width: 250px;
+  width: 250px;
   height: 30px;
   border: none;
   border-bottom: 1px solid gray;
@@ -44,9 +44,8 @@ width: 250px;
   font-size: 20px;
   transition: border-bottom 0.3s;
   &:focus {
-    color:#fff200;
+    color: #fff200;
     border-bottom: 1px solid white;
-    }
   }
 `;
 
@@ -74,6 +73,7 @@ const Button = styled.button`
     color: navy;
   }
 `;
+
 interface IJoinForm {
   email: string;
   name: string;
@@ -89,6 +89,7 @@ function Join() {
     setError,
     formState: { errors },
   } = useForm<IJoinForm>();
+
   const onSubmit = (data: IJoinForm) => {
     if (data.pwConfirm !== data.pw) {
       setError("pwConfirm", { message: "password are not the same" }, { shouldFocus: true });
@@ -110,6 +111,7 @@ function Join() {
         });
     }
   };
+
   return (
     <Wrapper>
       <Form onSubmit={handleSubmit(onSubmit)}>

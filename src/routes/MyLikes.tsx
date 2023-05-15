@@ -47,9 +47,9 @@ const Button = styled.button`
   color: white;
   text-decoration: underline;
   transition: 0.2s;
-  cursor:pointer;
+  cursor: pointer;
   &:hover {
-    color: #ff0063;}
+    color: #ff0063;
   }
 `;
 
@@ -71,16 +71,8 @@ const TitleButton = styled.button`
 `;
 
 function MyLikes() {
-  const setCurrentCategory = useSetRecoilState(currentCategoryAtom);
-  const navigate = useNavigate();
-  const categoryClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    const category = event.currentTarget.innerText;
-    setCurrentCategory(category);
-    navigate(`/mylikes/${category}/table`);
-  };
   const loggedInUser = useRecoilValue(loggedInUserAtom);
   const [categoryTemplate, setCategoryTemplate] = useRecoilState(categoryTemplateAtom);
-  const [isModalOn, setIsModalOn] = useState(false);
   useEffect(() => {
     onSnapshot(doc(dbService, "MyLikes_template", `template_${loggedInUser?.uid}`), (doc) => {
       const templateDB = { ...doc.data() };
@@ -88,10 +80,18 @@ function MyLikes() {
     });
   }, []);
 
+  const setCurrentCategory = useSetRecoilState(currentCategoryAtom);
+  const navigate = useNavigate();
+  const onCategoryClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    const category = event.currentTarget.innerText;
+    setCurrentCategory(category);
+    navigate(`/mylikes/${category}/table`);
+  };
+
+  const [isModalOn, setIsModalOn] = useState(false);
   const onModalOnClick = () => {
     setIsModalOn(true);
   };
-
   const onModalOffClick = () => {
     setIsModalOn(false);
   };
@@ -106,7 +106,7 @@ function MyLikes() {
           </Title>
           <Categories>
             {Object.keys(categoryTemplate).map((category) => (
-              <Button key={category} onClick={categoryClick}>
+              <Button key={category} onClick={onCategoryClick}>
                 {category}
               </Button>
             ))}
