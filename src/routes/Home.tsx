@@ -54,6 +54,7 @@ const Button = styled.button`
   border-radius: 20px;
   border: none;
   font-size: 20px;
+  font-weight: 600;
   color: white;
   cursor: pointer;
   a {
@@ -78,6 +79,11 @@ const Button = styled.button`
 const Container = styled.div`
   margin-top: 295px;
   width: 100vw;
+`;
+
+const Disabled = styled.span`
+  color: gray;
+  font-weight: 600;
 `;
 
 function Home() {
@@ -108,9 +114,7 @@ function Home() {
                 <Link to='/login'>Login</Link>
               </Button>
             )}
-            <Button>
-              <Link to='/join'>Join </Link>
-            </Button>
+            <Button>{loggedInUser ? <Disabled>Join</Disabled> : <Link to='/join'>Join</Link>}</Button>
           </Menu>
         </Header>
         <Container>
