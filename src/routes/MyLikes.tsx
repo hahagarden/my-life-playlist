@@ -1,12 +1,12 @@
 import styled from "styled-components";
 import { useRecoilValue, useRecoilState } from "recoil";
 import { useEffect, useState } from "react";
-import { categoryTemplateAtom } from "./components_mylikes/atoms_mylikes";
-import { dbService } from "../fbase";
 import { doc, onSnapshot } from "firebase/firestore";
-import { loggedInUserAtom } from "../atom";
-import AddCategoryModal from "./components_mylikes/AddCategoryModal";
-import CategoryCard from "./CategoryCard";
+
+import { dbService } from "../fbase";
+import { loggedInUserAtom, categoryTemplateAtom } from "../atom";
+import CategoryCard from "../components/CategoryCard";
+import AddCategoryModal from "../components/AddCategoryModal";
 
 const MyLikesWrapper = styled.div`
   width: 100vw;

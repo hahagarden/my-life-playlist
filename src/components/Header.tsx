@@ -1,6 +1,7 @@
+import styled from "styled-components";
 import { signOut } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
-import styled from "styled-components";
+
 import { authService } from "../fbase";
 
 const HeaderContainer = styled.header`

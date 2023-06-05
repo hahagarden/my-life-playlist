@@ -1,11 +1,11 @@
 import styled, { keyframes } from "styled-components";
-import { likesAtom, categoryTemplateAtom } from "./atoms_mylikes";
 import { useForm } from "react-hook-form";
-import { dbService } from "../../fbase";
 import { setDoc, doc } from "firebase/firestore";
 import { useRecoilValue } from "recoil";
-import { loggedInUserAtom } from "../../atom";
 import { useParams } from "react-router-dom";
+
+import { dbService } from "../fbase";
+import { loggedInUserAtom, likesAtom, categoryTemplateAtom } from "../atom";
 
 const animation_show = keyframes`
   from{
@@ -165,11 +165,7 @@ function Modal({ onModalOffClick }: IModalProps) {
 
     try {
       await setDoc(doc(dbService, currentCategory, likeId), baseInfo);
-      await setDoc(
-        doc(dbService, currentCategory, `ranking_${loggedInUser?.uid}`),
-        { [likeId]: likes.length + 1 },
-        { merge: true }
-      ); //add ranking_uid document
+      await setDoc(doc(dbService, currentCategory, `ranking_${loggedInUser?.uid}`), { [likeId]: likes.length + 1 }, { merge: true }); //add ranking_uid document
     } catch (e) {
       console.error("Error adding document", e);
     }

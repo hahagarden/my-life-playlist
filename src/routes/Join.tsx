@@ -2,6 +2,8 @@ import styled from "styled-components";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { Link } from "react-router-dom";
+
 import { authService } from "../fbase";
 import {
   ERROR_EMAIL_DUPLICATE,
@@ -12,7 +14,6 @@ import {
   ERROR_PASSWORD_MIN_LENGTH,
   ERROR_USERNAME_FORMAT,
 } from "../errors";
-import { Link } from "react-router-dom";
 
 const JoinContainer = styled.div`
   width: 100vw;

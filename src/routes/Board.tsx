@@ -1,10 +1,11 @@
+import styled, { keyframes } from "styled-components";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
-import styled, { keyframes } from "styled-components";
-import { categoryTemplateAtom } from "./atoms_mylikes";
-import PaintBoard from "./PaintBoard";
+
+import { categoryTemplateAtom } from "../atom";
+import PaintBoard from "../components/PaintBoard";
 
 const animation_boards = keyframes`
   from{
