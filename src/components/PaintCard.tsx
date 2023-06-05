@@ -1,9 +1,10 @@
 import styled from "styled-components";
 import { Draggable } from "react-beautiful-dnd";
-import { ILike, categoryTemplateAtom } from "./atoms_mylikes";
 import { useState } from "react";
 import { useRecoilValue } from "recoil";
 import { useParams } from "react-router-dom";
+
+import { ILike, categoryTemplateAtom } from "../atom";
 
 interface CardProps {
   key: string;

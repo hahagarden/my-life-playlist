@@ -1,10 +1,11 @@
 import { Route, Routes } from "react-router-dom";
+
 import Footer from "../components/Footer";
 import Header from "../components/Header";
-import MyLike from "./components_mylikes/MyLike";
 import MyLikes from "./MyLikes";
+import MyLike from "./MyLike";
 
-export default function Home2() {
+export default function Home() {
   return (
     <>
       <Header />

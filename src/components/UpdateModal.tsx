@@ -1,11 +1,12 @@
-import { ILike, categoryTemplateAtom } from "./atoms_mylikes";
 import styled, { keyframes } from "styled-components";
 import { useRecoilValue } from "recoil";
 import { useForm } from "react-hook-form";
 import { doc, updateDoc } from "firebase/firestore";
-import { dbService } from "../../fbase";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
+
+import { dbService } from "../fbase";
+import { ILike, categoryTemplateAtom } from "../atom";
 
 const animation_show = keyframes`
     from{

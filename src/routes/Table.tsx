@@ -1,14 +1,13 @@
+import styled, { keyframes } from "styled-components";
 import { useState } from "react";
-import { ILike, likesRankingAtom, IRanking, likesAtom, categoryTemplateAtom } from "./atoms_mylikes";
-import styled from "styled-components";
-import UpdateModal from "./UpdateModal";
-import { DragDropContext, DropResult, Droppable, Draggable } from "react-beautiful-dnd";
-import { keyframes } from "styled-components";
-import { doc, updateDoc, deleteDoc, deleteField } from "firebase/firestore";
-import { dbService } from "../../fbase";
+import { dbService } from "../fbase";
 import { useRecoilValue } from "recoil";
-import { loggedInUserAtom } from "../../atom";
 import { useParams } from "react-router-dom";
+import { DragDropContext, DropResult, Droppable, Draggable } from "react-beautiful-dnd";
+import { doc, updateDoc, deleteDoc, deleteField } from "firebase/firestore";
+
+import { loggedInUserAtom, ILike, likesRankingAtom, IRanking, likesAtom, categoryTemplateAtom } from "../atom";
+import UpdateModal from "../components/UpdateModal";
 
 const animation = keyframes`
   from{

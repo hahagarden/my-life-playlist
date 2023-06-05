@@ -1,15 +1,14 @@
 import styled from "styled-components";
-import Table from "./Table";
-import RegisterModal from "./RegisterModal";
-import { likesAtom, ILike, likesRankingAtom } from "./atoms_mylikes";
-import { useRecoilState } from "recoil";
-import { Routes, Route, Link, useParams, useLocation } from "react-router-dom";
-import Board from "./Board";
-import { onSnapshot, query, collection, where, doc } from "firebase/firestore";
-import { dbService } from "../../fbase";
 import { useEffect, useState } from "react";
-import { useRecoilValue } from "recoil";
-import { loggedInUserAtom } from "../../atom";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { Routes, Route, Link, useParams, useLocation } from "react-router-dom";
+import { onSnapshot, query, collection, where, doc } from "firebase/firestore";
+
+import { dbService } from "../fbase";
+import { loggedInUserAtom, likesAtom, ILike, likesRankingAtom } from "../atom";
+import Table from "./Table";
+import Board from "./Board";
+import RegisterModal from "../components/RegisterModal";
 
 const Wrapper = styled.div`
   margin-top: 3rem;

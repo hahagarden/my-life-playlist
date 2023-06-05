@@ -1,7 +1,8 @@
 import styled, { keyframes } from "styled-components";
 import { useRecoilValue } from "recoil";
 import { Droppable } from "react-beautiful-dnd";
-import { likesAtom } from "./atoms_mylikes";
+
+import { likesAtom } from "../atom";
 import PaintCard from "./PaintCard";
 
 const animation_board = keyframes`
