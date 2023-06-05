@@ -58,6 +58,5 @@
     "@types/recoil": "^0.0.9",
     "@types/styled-components": "^5.1.26",
     "file-loader": "^6.2.0"
-  },
-  "homepage": "https://hahagarden.github.io/project-machine"
+  }
 }

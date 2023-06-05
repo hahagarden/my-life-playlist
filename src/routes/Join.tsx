@@ -3,85 +3,107 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { authService } from "../fbase";
+import {
+  ERROR_EMAIL_DUPLICATE,
+  ERROR_EMAIL_FORMAT,
+  ERROR_JOIN_FAILURE,
+  ERROR_PASSWORD_CONFIRM,
+  ERROR_PASSWORD_MAX_LENGTH,
+  ERROR_PASSWORD_MIN_LENGTH,
+  ERROR_USERNAME_FORMAT,
+} from "../errors";
+import { Link } from "react-router-dom";
 
-const Wrapper = styled.div`
-  width: 100%;
-  background-color: navy;
+const JoinContainer = styled.div`
+  width: 100vw;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
+`;
+
+const WelcomeMessage = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  p {
+    margin-bottom: 0.5rem;
+  }
+
+  margin-bottom: 2rem;
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  margin: 20px;
+  border: 1px solid var(--light-gray);
+  border-radius: 1rem;
+  padding: 2rem;
 `;
 
-const InputLine = styled.div`
-  position: relative;
-  margin: 10px 0;
+const InputBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 `;
 
 const Label = styled.label`
-  display: inline-block;
-  width: 180px;
-  text-align: right;
-  color: white;
-  padding-right: 10px;
-  font-size: 20px;
+  width: 15rem;
+  height: 1.5rem;
+  text-align: center;
 `;
 
 const Input = styled.input`
-  width: 250px;
-  height: 30px;
-  border: none;
-  border-bottom: 1px solid gray;
+  background-color: var(--light-gray);
   outline: none;
-  background-color: inherit;
-  color: white;
-  font-size: 20px;
-  transition: border-bottom 0.3s;
-  &:focus {
-    color: #fff200;
-    border-bottom: 1px solid white;
-  }
+  border-radius: 1.5rem;
+  border: none;
+  width: 15rem;
+  height: 2.5rem;
+  text-align: center;
+  font-size: 1rem;
 `;
 
-const Span = styled.span`
-  position: absolute;
-  left: 429px;
-  top: 10px;
-  width: 250px;
-  margin-left: 10px;
-  color: red;
+const InputMessage = styled.p`
+  width: 15rem;
+  height: 2rem;
+  text-align: center;
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--red);
 `;
 
 const Button = styled.button`
-  background-color: transparent;
-  border: 1px solid white;
-  border-radius: 17px;
-  width: 300px;
-  height: 35px;
-  color: white;
-  font-size: 20px;
-  margin: 20px;
-  transition: background-color, color 0.3s;
-  &:hover {
-    background-color: #f1f2f6;
-    color: navy;
-  }
+  background-color: var(--light-gray);
+  border-radius: 1.5rem;
+  border: none;
+  width: 6rem;
+  height: 2.5rem;
+  text-align: center;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  cursor: pointer;
+`;
+
+const LoginLink = styled(Link)`
+  text-decoration: underline;
+  color: var(--dark-gray);
+  margin-top: 1rem;
 `;
 
 interface IJoinForm {
   email: string;
-  name: string;
+  username: string;
   pw: string;
   pwConfirm: string;
 }
 
-function Join() {
+export default function Join() {
   const navigator = useNavigate();
   const {
     register,
@@ -91,85 +113,82 @@ function Join() {
   } = useForm<IJoinForm>();
 
   const onSubmit = (data: IJoinForm) => {
-    if (data.pwConfirm !== data.pw) {
-      setError("pwConfirm", { message: "password are not the same" }, { shouldFocus: true });
-    } else {
-      createUserWithEmailAndPassword(authService, data.email, data.pw)
-        .then(() => {
-          alert(`welcome ${data.email}!`);
-          navigator("/");
-        })
-        .catch((error) => {
-          console.log(error);
-          switch (error.code) {
-            case "auth/email-already-in-use":
-              alert("email already exists.");
-              break;
-            default:
-              alert("Join inavailable.");
-          }
-        });
-    }
+    if (data.pwConfirm !== data.pw) return setError("pwConfirm", { message: ERROR_PASSWORD_CONFIRM }, { shouldFocus: true });
+
+    createUserWithEmailAndPassword(authService, data.email, data.pw)
+      .then(() => {
+        alert(`welcome ${data.email}!`);
+        navigator("/");
+      })
+      .catch((error) => {
+        console.log(error);
+        switch (error.code) {
+          case "auth/email-already-in-use":
+            alert(ERROR_EMAIL_DUPLICATE);
+            break;
+          default:
+            alert(ERROR_JOIN_FAILURE);
+        }
+      });
   };
 
   return (
-    <Wrapper>
+    <JoinContainer>
+      <WelcomeMessage>
+        <p>회원가입</p>
+      </WelcomeMessage>
       <Form onSubmit={handleSubmit(onSubmit)}>
-        <InputLine>
+        <InputBox>
           <Label htmlFor="email">email</Label>
           <Input
             {...register("email", {
-              required: "*",
+              required: true,
               pattern: {
-                value: /^[a-zA-z0-9@.]+$/,
-                message: "email with alphabet and number only",
+                value: /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/,
+                message: ERROR_EMAIL_FORMAT,
               },
             })}
             id="email"
-            placeholder="email"
             autoComplete="off"
           ></Input>
-          <Span>{errors?.email?.message}</Span>
-        </InputLine>
-        <InputLine>
-          <Label htmlFor="name">name</Label>
+          <InputMessage>{errors?.email?.message}</InputMessage>
+        </InputBox>
+        <InputBox>
+          <Label htmlFor="username">username</Label>
           <Input
-            {...register("name", {
-              required: "*",
+            {...register("username", {
+              required: true,
               pattern: {
-                value: /^[a-zA-z가-힣]+$/,
-                message: "English and Korean only",
+                value: /^[a-zA-z가-힣0-9]+$/,
+                message: ERROR_USERNAME_FORMAT,
               },
             })}
-            id="name"
-            placeholder="name"
+            id="username"
             autoComplete="off"
           ></Input>
-          <Span>{errors?.name?.message}</Span>
-        </InputLine>
-        <InputLine>
-          <Label htmlFor="pw">password</Label>
+          <InputMessage>{errors?.username?.message}</InputMessage>
+        </InputBox>
+        <InputBox>
+          <Label>password</Label>
           <Input
             {...register("pw", {
-              required: "*",
-              minLength: { value: 6, message: "minimum length is 6" },
-              maxLength: { value: 12, message: "maximum length is 12" },
+              required: true,
+              minLength: { value: 6, message: ERROR_PASSWORD_MIN_LENGTH },
+              maxLength: { value: 12, message: ERROR_PASSWORD_MAX_LENGTH },
             })}
             id="pw"
-            placeholder="password"
             autoComplete="off"
           ></Input>
-          <Span>{errors?.pw?.message}</Span>
-        </InputLine>
-        <InputLine>
-          <Label htmlFor="pwConfirm">confirm password</Label>
-          <Input {...register("pwConfirm", { required: "*" })} id="pwConfirm" placeholder="confirm password" autoComplete="off"></Input>
-          <Span>{errors?.pwConfirm?.message}</Span>
-        </InputLine>
+          <InputMessage>{errors?.pw?.message}</InputMessage>
+        </InputBox>
+        <InputBox>
+          <Label>password confirm</Label>
+          <Input {...register("pwConfirm", { required: true })} id="pwConfirm" autoComplete="off"></Input>
+          <InputMessage>{errors?.pwConfirm?.message}</InputMessage>
+        </InputBox>
         <Button>Join</Button>
+        <LoginLink to="/">click to login</LoginLink>
       </Form>
-    </Wrapper>
+    </JoinContainer>
   );
 }
-
-export default Join;

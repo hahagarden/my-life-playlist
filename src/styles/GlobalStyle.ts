@@ -59,6 +59,14 @@ a{
 *{
 	box-sizing:border-box;
 }
+
+:root{
+	--light-gray:#ededed;
+	--normal-gray:#aaaaaa;
+	--dark-gray:#757575;
+	--hotpink:#ff5496;
+	--white:white;
+}
 `;
 
 export default GlobalStyle;
