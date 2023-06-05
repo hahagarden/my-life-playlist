@@ -1,74 +1,98 @@
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { authService } from "../fbase";
+import {
+  ERROR_EMAIL_NOT_EXIST,
+  ERROR_EMAIL_FORMAT,
+  ERROR_LOGIN_FAILURE,
+  ERROR_PASSWORD_MAX_LENGTH,
+  ERROR_PASSWORD_MIN_LENGTH,
+  ERROR_WRONG_PASSWORD,
+} from "../errors";
 
-const Wrapper = styled.div`
-  width: 100%;
-  background-color: navy;
+const LoginContainer = styled.div`
+  width: 100vw;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
+`;
+
+const WelcomeMessage = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  p {
+    margin-bottom: 0.5rem;
+  }
+
+  margin-bottom: 2rem;
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  margin: 20px;
+  border: 1px solid var(--light-gray);
+  border-radius: 1rem;
+  padding: 2rem;
 `;
 
-const InputLine = styled.div`
-  position: relative;
-  margin: 10px 0;
+const InputBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 `;
 
 const Label = styled.label`
-  color: white;
-  padding-right: 10px;
-  font-size: 20px;
+  width: 15rem;
+  height: 1.5rem;
+  text-align: center;
 `;
 
 const Input = styled.input`
-  width: 250px;
-  height: 30px;
-  border: none;
-  border-bottom: 1px solid gray;
+  background-color: var(--light-gray);
   outline: none;
-  background-color: inherit;
-  color: white;
-  font-size: 20px;
-  transition: border-bottom 0.3s;
-  &:focus {
-    color: #fff200;
-    border-bottom: 1px solid white;
-  }
+  border-radius: 1.5rem;
+  border: none;
+  width: 15rem;
+  height: 2.5rem;
+  text-align: center;
+  font-size: 1rem;
 `;
 
-const Span = styled.span`
-  position: absolute;
-  left: 353px;
-  top: 9px;
-  width: 250px;
-  margin-left: 10px;
-  color: red;
+const InputMessage = styled.p`
+  width: 15rem;
+  height: 2rem;
+  text-align: center;
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--red);
 `;
 
 const Button = styled.button`
-  background-color: transparent;
-  border: 1px solid white;
-  border-radius: 17px;
-  width: 300px;
-  height: 35px;
-  color: white;
-  font-size: 20px;
-  margin: 20px;
-  transition: background-color, color 0.3s;
-  &:hover {
-    background-color: #f1f2f6;
-    color: navy;
-  }
+  background-color: var(--light-gray);
+  border-radius: 1.5rem;
+  border: none;
+  width: 6rem;
+  height: 2.5rem;
+  text-align: center;
+  font-size: 1rem;
+  margin-top: 0.2rem;
+  cursor: pointer;
+`;
+
+const JoinLink = styled(Link)`
+  text-decoration: underline;
+  color: var(--dark-gray);
+  margin-top: 1rem;
 `;
 
 interface ILoginForm {
@@ -76,7 +100,7 @@ interface ILoginForm {
   pw: string;
 }
 
-function Login() {
+export default function Login() {
   const navigator = useNavigate();
   const {
     register,
@@ -87,7 +111,7 @@ function Login() {
   const onSubmit = (data: ILoginForm) => {
     signInWithEmailAndPassword(authService, data.email, data.pw)
       .then(() => {
-        alert(`Hello ${data.email}!`);
+        alert(`welcome!`);
         navigator("/");
       })
       .catch((error) => {
@@ -95,54 +119,56 @@ function Login() {
         const errorCode = error.code;
         switch (errorCode) {
           case "auth/user-not-found":
-            alert("email does not exist.");
+            alert(ERROR_EMAIL_NOT_EXIST);
             break;
           case "auth/wrong-password":
-            alert("wrong password.");
+            alert(ERROR_WRONG_PASSWORD);
             break;
           default:
-            alert("login inavailable.");
+            alert(ERROR_LOGIN_FAILURE);
         }
       });
   };
 
   return (
-    <Wrapper>
+    <LoginContainer>
+      <WelcomeMessage>
+        <p>내가 좋아하는 것들로 채워보세요</p>
+        <p>my life playlist</p>
+      </WelcomeMessage>
+
       <Form onSubmit={handleSubmit(onSubmit)}>
-        <InputLine>
+        <InputBox>
           <Label htmlFor="email">email</Label>
           <Input
             {...register("email", {
               required: true,
               pattern: {
-                value: /^[a-zA-z0-9@.]/,
-                message: "email with alphabet and number only",
+                value: /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/,
+                message: ERROR_EMAIL_FORMAT,
               },
             })}
             id="email"
-            placeholder="email"
             autoComplete="off"
           ></Input>
-          <Span>{errors?.email?.message}</Span>
-        </InputLine>
-        <InputLine>
-          <Label htmlFor="pw">password</Label>
+          <InputMessage>{errors?.email?.message}</InputMessage>
+        </InputBox>
+        <InputBox>
+          <Label>password</Label>
           <Input
             {...register("pw", {
               required: true,
-              minLength: { value: 6, message: "minimum length is 6" },
-              maxLength: { value: 12, message: "maximum length is 12" },
+              minLength: { value: 6, message: ERROR_PASSWORD_MIN_LENGTH },
+              maxLength: { value: 12, message: ERROR_PASSWORD_MAX_LENGTH },
             })}
             id="pw"
-            placeholder="password"
             autoComplete="off"
           ></Input>
-          <Span>{errors?.pw?.message}</Span>
-        </InputLine>
-        <Button>Log in</Button>
+          <InputMessage>{errors?.pw?.message}</InputMessage>
+        </InputBox>
+        <Button>login</Button>
+        <JoinLink to="/join">click to join</JoinLink>
       </Form>
-    </Wrapper>
+    </LoginContainer>
   );
 }
-
-export default Login;

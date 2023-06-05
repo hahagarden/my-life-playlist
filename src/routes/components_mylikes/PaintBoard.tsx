@@ -21,10 +21,10 @@ const Wrapper = styled.div`
   width: 350px;
   height: 400px;
   padding: 10px;
-  background-color: navy;
-  box-shadow: 3px 3px 6px 2px rgba(0, 0, 0, 0.5);
+  background-color: transparent;
+  box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.2);
   display: flex;
-  border-radius: 50px;
+  border-radius: 30px;
   flex-direction: column;
   animation: ${animation_board} 0.5s ease-out;
 `;
@@ -33,7 +33,6 @@ const Title = styled.h1`
   text-align: center;
   font-size: 25px;
   margin: 15px;
-  color: white;
 `;
 
 const DroppableBoard = styled.div`

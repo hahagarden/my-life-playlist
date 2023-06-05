@@ -19,23 +19,50 @@ const animation = keyframes`
   };
 `;
 
-const TableArea = styled.table`
-  width: 70%;
-  animation: ${animation} 0.4s ease-out;
+const TableWrapper = styled.div`
+  width: 100vw;
+  height: calc(100vh - 5rem - 6rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow-y: auto;
 `;
 
-const Tbody = styled.tbody``;
+const TableArea = styled.table`
+  width: 70%;
+  position: absolute;
+  top: 0;
+  animation: ${animation} 0.4s ease-out;
+
+  & > thead > tr {
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+`;
+
+const Tbody = styled.tbody`
+  width: 100%;
+  height: 100%;
+  overflow-y: hidden;
+`;
 
 const Tr = styled.tr<{ headerLength: number }>`
   position: relative;
   font-size: 20px;
   display: grid;
   grid-template-columns: 0.5fr 1.5fr repeat(${(props) => props.headerLength - 2}, 1fr);
+  border-radius: 25px;
+  box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
+  margin-bottom: 10px;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+  }
 `;
 
 const Th = styled.th`
   padding: 15px 0;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.3);
   font-weight: 600;
 `;
 
@@ -44,7 +71,6 @@ const Td = styled.td`
   overflow: hidden;
   text-align: center;
   padding: 15px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
   white-space: nowrap;
   font-size: 18px;
   font-weight: 400;
@@ -68,8 +94,6 @@ const DeleteButton = styled.button`
     opacity: 0.7;
   }
 `;
-
-const Area = styled.div``;
 
 function Table() {
   const { category } = useParams();
@@ -132,13 +156,10 @@ function Table() {
   };
 
   const TrLength =
-    (myLikesTemplate[currentCategory].typingAttrs.length || 0) +
-    Object.keys(myLikesTemplate[currentCategory].selectingAttrs).length +
-    1;
-  console.log(myLikesTemplate);
+    (myLikesTemplate[currentCategory].typingAttrs.length || 0) + Object.keys(myLikesTemplate[currentCategory].selectingAttrs).length + 1;
 
   return (
-    <>
+    <TableWrapper>
       <DragDropContext onDragEnd={onDragEnd}>
         <TableArea>
           <thead>
@@ -188,7 +209,7 @@ function Table() {
         </TableArea>
         {updateOne !== "" ? <UpdateModal like={updateOne} modalClose={onModalOffClick} /> : ""}
       </DragDropContext>
-    </>
+    </TableWrapper>
   );
 }
 

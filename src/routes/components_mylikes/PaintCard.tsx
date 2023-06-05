@@ -12,20 +12,16 @@ interface CardProps {
 }
 
 const DraggableCard = styled.div<{ like: ILike }>`
-  background-color: white;
-  box-shadow: inset 0px 0px 4px 1px rgba(0,0,0,0.7);
+  box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
   border-radius: 20px;
-  color: navy;
   text-align: center;
   font-size: 18px;
-  font-weight: 500;
   padding: 10px;
   margin: 10px;
   transition: 0.2s;
-  &:hover{
-    background-color:#f0932b;
-    color:white;
-  }
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.8);
   }
 `;
 

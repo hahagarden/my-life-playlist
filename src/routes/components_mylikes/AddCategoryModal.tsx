@@ -188,6 +188,7 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
     const newCategory = {
       typingAttrs,
       selectingAttrs,
+      createdAt: Date.now(),
     };
     try {
       await setDoc(

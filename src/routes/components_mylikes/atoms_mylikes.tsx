@@ -1,9 +1,10 @@
-import { atom, selectorFamily } from "recoil";
+import { atom } from "recoil";
 
 export interface ICategoryTemplate {
   [category: string]: {
     typingAttrs: string[];
     selectingAttrs: { [option: string]: string[] };
+    createdAt: number;
   };
 }
 

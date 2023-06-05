@@ -1,10 +1,10 @@
-import { DragDropContext, DropResult } from 'react-beautiful-dnd';
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
-import styled, { keyframes } from 'styled-components';
-import { categoryTemplateAtom } from './atoms_mylikes';
-import PaintBoard from './PaintBoard';
+import { DragDropContext, DropResult } from "react-beautiful-dnd";
+import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { useRecoilValue } from "recoil";
+import styled, { keyframes } from "styled-components";
+import { categoryTemplateAtom } from "./atoms_mylikes";
+import PaintBoard from "./PaintBoard";
 
 const animation_boards = keyframes`
   from{
@@ -15,24 +15,27 @@ const animation_boards = keyframes`
   };
 `;
 
-const Wrapper = styled.div`
+const BoardWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 100%;
+  height: calc(100vh - 5rem - 6rem);
   animation: ${animation_boards} 0.4s ease-out;
 `;
 
 const Boards = styled.div`
-  width: 70%;
+  width: 100%;
   display: flex;
   flex-direction: row;
   padding: 50px;
-  background-color: #f1f2f6;
-  box-shadow: 4px 4px 7px 3px rgba(0, 0, 0, 0.5);
-  border-radius: 50px;
-  justify-content: space-around;
+  justify-content: center;
+  overflow-y: auto;
+
+  & > div:not(:first-child) {
+    margin-left: 2rem;
+  }
 `;
 
 const Categories = styled.div`
@@ -40,24 +43,26 @@ const Categories = styled.div`
 `;
 
 const Button = styled.button`
-  background-color: transparent;
-  width: 80px;
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
+  border-radius: 25px;
   height: 40px;
+  padding: 0px 20px;
   margin: 0 20px;
   border: none;
   font-size: 20px;
-  color: black;
-  text-decoration: underline;
   transition: 0.2s;
   cursor: pointer;
+
   &:hover {
-    color: #ff0063;
+    color: var(--hotpink);
+    font-weight: 600;
   }
 `;
 
 function Board() {
   const { category } = useParams();
-  const currentCategory = category ?? '';
+  const currentCategory = category ?? "";
   const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
   const [currentBoard, setCurrentBoard] = useState<string>(Object.keys(myLikesTemplate[currentCategory].selectingAttrs)[0]);
   const boardClick = (attr: string) => {
@@ -67,7 +72,7 @@ function Board() {
     console.log(info);
   };
   return (
-    <Wrapper>
+    <BoardWrapper>
       <Categories>
         {Object.keys(myLikesTemplate[currentCategory].selectingAttrs).map((attr) => (
           <Button key={attr} onClick={() => boardClick(attr)}>
@@ -84,7 +89,7 @@ function Board() {
           </Boards>
         </DragDropContext>
       ) : null}
-    </Wrapper>
+    </BoardWrapper>
   );
 }
 
