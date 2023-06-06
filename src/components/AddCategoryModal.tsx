@@ -1,5 +1,5 @@
 import styled, { keyframes } from "styled-components";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRecoilValue } from "recoil";
 import { setDoc, doc } from "firebase/firestore";
@@ -27,12 +27,13 @@ const ModalBackground = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 2;
 `;
 
 const ModalWindow = styled.div`
   display: "flex";
   background-color: white;
-  border: 4px solid navy;
+  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3);
   border-radius: 15px;
   width: 550px;
   flex-direction: column;
@@ -41,26 +42,25 @@ const ModalWindow = styled.div`
   animation: ${animation_show} 0.1s ease-out;
 `;
 
-const Header = styled.div`
-  display: flex;
-  margin: 25px;
-`;
-
-const Title = styled.h1`
-  font-size: 28px;
-  font-weight: 600;
+const Title = styled.div`
+  background: linear-gradient(to bottom, #ff8e9b, #fb7887);
+  box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
+  border-radius: 30px;
+  padding: 5px 20px;
+  margin: 40px 0px;
 `;
 
 const CloseButton = styled.button`
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 45px;
+  right: 30px;
   background-color: transparent;
   border: none;
   font-size: 22px;
   color: rgba(0, 0, 0, 0.3);
   cursor: pointer;
   transition: 0.2s;
+
   &:hover {
     color: rgba(0, 0, 0, 0.7);
   }
@@ -71,67 +71,80 @@ const Form = styled.form`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 10px;
 `;
 
-const InputLine = styled.td`
+const InputLine = styled.div`
   position: relative;
-  left: -10px;
-  margin-top: 10px;
-  width: 400px;
   display: flex;
   justify-content: center;
+
+  &:not(:nth-of-type(2)) {
+    margin-top: 15px;
+  }
 `;
 
-const Input = styled.input`
-  width: 200px;
-  height: 35px;
+const TemplateInputBox = styled.div`
+  width: 250px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   margin-left: 10px;
-  border: none;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-  outline: none;
-  background-color: inherit;
-  color: black;
-  font-size: 20px;
-  transition: border-bottom 0.3s;
-  &:focus {
-    border-bottom: 1px solid black;
+
+  & > input {
+    width: 250px;
+    margin-bottom: 0px;
   }
 `;
 
 const TemplateInput = styled.input`
-  width: 175px;
+  width: 150px;
   height: 35px;
-  margin-left: 10px;
   border: none;
-  border-bottom: 1px solid gray;
+  border-radius: 10px;
+  box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.1);
   outline: none;
   background-color: inherit;
-  color: black;
-  font-size: 20px;
+  font-size: 18px;
   transition: border-bottom 0.3s;
-  &:focus {
-    border-bottom: 1px solid black;
+  text-align: center;
+  margin-bottom: 10px;
+
+  &::placeholder {
+    color: #a8a8a8;
+    font-weight: 400;
+    font-size: 15px;
   }
+
   &:nth-child(2) {
     width: 200px;
   }
 `;
 
 const TemplateHeaderInput = styled(TemplateInput)`
-  font-size: 25px;
-  font-weight: 500;
+  width: 300px;
+  height: 35px;
   text-align: center;
+  font-size: 25px;
+  color: var(--white);
+  border: none;
+  margin: 0;
+  background-color: transparent;
+  box-shadow: none;
+
   &::placeholder {
-    text-align: center;
-    font-size: 22px;
+    font-size: inherit;
+    color: #d8d8d8;
+  }
+
+  &:focus {
+    border: none;
   }
 `;
 
 const AddButton = styled.button`
   position: absolute;
   right: -30px;
-  top: 25%;
+  top: 6px;
   background-color: transparent;
   border: none;
   font-size: 15px;
@@ -148,19 +161,40 @@ const AddButton = styled.button`
 
 const Button = styled.button`
   background-color: transparent;
-  border: 1px solid black;
-  border-radius: 15px;
-  width: 300px;
-  height: 35px;
-  color: black;
-  font-size: 20px;
-  margin: 25px;
-  margin-top: 60px;
+  box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
+  border: none;
+  border-radius: 25px;
+  color: gray;
+  font-size: 18px;
+  margin: 40px 0px;
+  padding: 5px 20px;
   cursor: pointer;
-  transition: background-color, color 0.3s;
+  transition: all 0.2s;
+
   &:hover {
-    background-color: navy;
+    background: linear-gradient(to bottom, #ff8e9b, #fb7887);
     color: white;
+  }
+`;
+
+const OptionsBox = styled.div`
+  display: flex;
+  width: inherit;
+  height: auto;
+  padding: 5px;
+  overflow-x: auto;
+`;
+
+const OptionTag = styled.div`
+  display: inline-block;
+  background-color: #e5e5e5;
+  box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
+  border: none;
+  border-radius: 25px;
+  padding: 5px 10px;
+
+  &:not(:first-of-type) {
+    margin-left: 10px;
   }
 `;
 
@@ -176,6 +210,12 @@ interface IAddCategoryModalProps {
 function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
   const loggedInUser = useRecoilValue(loggedInUserAtom);
   const { register, handleSubmit } = useForm<IAddCategoryForm>();
+
+  interface ISelectingOptions {
+    [selectingOptionId: string]: string[];
+  }
+  const [options, setOptions] = useState<ISelectingOptions>({});
+
   const addCategorySubmit = async (data: IAddCategoryForm) => {
     const typingAttrs: string[] = [];
     const selectingAttrs: { [selectingAttr: string]: string[] } = {};
@@ -183,7 +223,7 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
       if (attr.includes("typingAttr")) typingAttrs.push(data[attr]);
       else if (attr.includes("selectingAttr")) {
         const id = attr.slice(14);
-        selectingAttrs[data[attr]] = data[`selectOptions_${id}`].split(",");
+        selectingAttrs[data[attr]] = options[id];
       }
     });
     const newCategory = {
@@ -226,91 +266,95 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
     });
   };
 
+  const onOptionInputChange = (id: string, event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.value[event.target.value.length - 1] === ",") {
+      const newOptions = Object.assign({}, options);
+      if (newOptions[id]) newOptions[id] = [...newOptions[id], event.target.value.slice(0, event.target.value.length - 1)];
+      else newOptions[id] = [event.target.value.slice(0, event.target.value.length - 1)];
+      setOptions(newOptions);
+      event.target.value = "";
+    }
+  };
+  const onOptionClick = (id: string, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    const newOptions = Object.assign({}, options);
+    newOptions[id].splice(newOptions[id].indexOf(event.currentTarget.innerText), 1);
+    setOptions(newOptions);
+  };
+
   return (
     <>
       <ModalBackground onClick={onModalOffClick}>
         <ModalWindow onClick={(event) => event.stopPropagation()}>
           <Form onSubmit={handleSubmit(addCategorySubmit)}>
-            <Header>
-              <Title>
-                <TemplateHeaderInput
-                  id="categoryName"
-                  placeholder="Category Name"
-                  autoComplete="off"
-                  {...register("categoryName", { required: true })}
-                ></TemplateHeaderInput>
-              </Title>
-              <CloseButton onClick={onModalOffClick}>×</CloseButton>
-            </Header>
-            <table id="table">
-              <tbody>
-                <tr>
-                  <InputLine>
+            <Title>
+              <TemplateHeaderInput
+                id="categoryName"
+                placeholder="category name"
+                autoComplete="off"
+                {...register("categoryName", { required: true })}
+              ></TemplateHeaderInput>
+            </Title>
+            <CloseButton onClick={onModalOffClick}>×</CloseButton>
+
+            {addTemplateInput.map((id) => {
+              return (
+                <InputLine key={id}>
+                  <TemplateInput
+                    placeholder="field name"
+                    autoComplete="off"
+                    {...register(`typingAttr_${id}`, {
+                      required: true,
+                      pattern: /^[a-z0-9]+$/i,
+                    })}
+                  ></TemplateInput>
+                  <AddButton type="button" onClick={addTemplateInputClick}>
+                    ＋
+                  </AddButton>
+                  <AddButton type="button" onClick={() => deleteTemplateInputClick(id)}>
+                    －
+                  </AddButton>
+                </InputLine>
+              );
+            })}
+
+            {addTemplateSelectingInput.map((id) => {
+              return (
+                <InputLine key={id}>
+                  <TemplateInput
+                    placeholder="field name"
+                    id="selectingAttr"
+                    autoComplete="off"
+                    {...register(`selectingAttr_${id}`)}
+                  ></TemplateInput>
+
+                  <TemplateInputBox>
                     <TemplateInput
-                      placeholder="'title' or 'name'"
+                      placeholder="option with comma"
+                      id="selectOptions"
                       autoComplete="off"
-                      {...register("typingAttr_name", {
-                        required: true,
-                        pattern: /^[a-z,]+$/i,
-                        validate: (value) => value.includes("name") || value.includes("title"),
+                      {...register(`selectOptions_${id}`, {
+                        onChange: (event) => onOptionInputChange(id, event),
                       })}
                     ></TemplateInput>
-                    <Input disabled={true}></Input>
-                  </InputLine>
-                </tr>
+                    <OptionsBox>
+                      {options[id]?.map((option) => (
+                        <OptionTag key={option} onClick={(event) => onOptionClick(id, event)}>
+                          {option}
+                        </OptionTag>
+                      ))}
+                    </OptionsBox>
+                  </TemplateInputBox>
+                  <AddButton type="button" onClick={addTemplateSelectingInputClick}>
+                    ＋
+                  </AddButton>
+                  <AddButton type="button" onClick={() => deleteTemplateSelectingInputClick(id)}>
+                    －
+                  </AddButton>
+                </InputLine>
+              );
+            })}
 
-                {addTemplateInput.map((id) => {
-                  return (
-                    <tr key={id}>
-                      <InputLine>
-                        <TemplateInput
-                          placeholder="typing attribute"
-                          autoComplete="off"
-                          {...register(`typingAttr_${id}`, {
-                            required: true,
-                            pattern: /^[a-z0-9]+$/i,
-                          })}
-                        ></TemplateInput>
-                        <Input disabled={true}></Input>
-                        <AddButton type="button" onClick={addTemplateInputClick}>
-                          ＋
-                        </AddButton>
-                        <AddButton type="button" onClick={() => deleteTemplateInputClick(id)}>
-                          －
-                        </AddButton>
-                      </InputLine>
-                    </tr>
-                  );
-                })}
-                {addTemplateSelectingInput.map((id) => {
-                  return (
-                    <tr key={id}>
-                      <InputLine>
-                        <TemplateInput
-                          placeholder="selecting attribute"
-                          id="selectingAttr"
-                          autoComplete="off"
-                          {...register(`selectingAttr_${id}`)}
-                        ></TemplateInput>
-                        <TemplateInput
-                          placeholder="options(,)"
-                          id="selectOptions"
-                          autoComplete="off"
-                          {...register(`selectOptions_${id}`)}
-                        ></TemplateInput>
-                        <AddButton type="button" onClick={addTemplateSelectingInputClick}>
-                          ＋
-                        </AddButton>
-                        <AddButton type="button" onClick={() => deleteTemplateSelectingInputClick(id)}>
-                          －
-                        </AddButton>
-                      </InputLine>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-            <Button>submit</Button>
+            <Button>make category</Button>
           </Form>
         </ModalWindow>
       </ModalBackground>
