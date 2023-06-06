@@ -114,7 +114,7 @@ export default function MyLikes() {
   const [categoryTemplate, setCategoryTemplate] = useRecoilState(categoryTemplateAtom);
   const [slideIndex, setSlideIndex] = useState(0);
   const templates = Object.keys(categoryTemplate).sort((a, b) => categoryTemplate[a].createdAt - categoryTemplate[b].createdAt);
-  const templateSlide = [templates[3], templates[1], templates[0], templates[4], templates[2], ...templates.slice(CARDS_PER_PAGE)];
+  const templateSlide = [templates[3], templates[1], templates[0], templates[2], templates[4], ...templates.slice(CARDS_PER_PAGE)];
 
   useEffect(() => {
     onSnapshot(doc(dbService, "MyLikes_template", `template_${loggedInUser?.uid}`), (doc) => {
@@ -157,7 +157,9 @@ export default function MyLikes() {
       </ScrollButton>
       <CategoryCards>
         {templateSlide.slice(slideIndex, slideIndex + CARDS_PER_PAGE).map((template, index) => (
-          <CategoryCard nth={index + 1}>{template}</CategoryCard>
+          <CategoryCard nth={index + 1} key={index + 1}>
+            {template}
+          </CategoryCard>
         ))}
       </CategoryCards>
       <ScrollButton onClick={onIncreaseSlideClick}>

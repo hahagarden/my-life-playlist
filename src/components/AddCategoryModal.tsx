@@ -192,6 +192,7 @@ const OptionTag = styled.div`
   border: none;
   border-radius: 25px;
   padding: 5px 10px;
+  cursor: pointer;
 
   &:not(:first-of-type) {
     margin-left: 10px;
