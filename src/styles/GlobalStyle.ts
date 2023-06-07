@@ -63,6 +63,7 @@ a{
 :root{
 	--light-gray:#ededed;
 	--normal-gray:#aaaaaa;
+	--red:red;
 	--dark-gray:#757575;
 	--hotpink:#ff5496;
 	--white:white;

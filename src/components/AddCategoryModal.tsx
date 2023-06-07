@@ -6,7 +6,8 @@ import { setDoc, doc } from "firebase/firestore";
 import { nanoid } from "nanoid";
 
 import { dbService } from "../fbase";
-import { loggedInUserAtom } from "../atom";
+import { loggedInUserAtom, categoryTemplateAtom } from "../atom";
+import { ERROR_CATEGORY_DUPLICATE, ERROR_FIELD_DUPLICATE } from "../errors";
 
 const animation_show = keyframes`
   from{
@@ -31,7 +32,7 @@ const ModalBackground = styled.div`
 `;
 
 const ModalWindow = styled.div`
-  display: "flex";
+  display: flex;
   background-color: white;
   box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3);
   border-radius: 15px;
@@ -48,12 +49,13 @@ const Title = styled.div`
   border-radius: 30px;
   padding: 5px 20px;
   margin: 40px 0px;
+  position: relative;
 `;
 
 const CloseButton = styled.button`
   position: absolute;
   top: 45px;
-  right: 30px;
+  right: -35px;
   background-color: transparent;
   border: none;
   font-size: 22px;
@@ -199,9 +201,22 @@ const OptionTag = styled.div`
   }
 `;
 
+const ErrorMessage = styled.p`
+  width: 15rem;
+  height: 2rem;
+  text-align: center;
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--red);
+  position: absolute;
+  top: 45px;
+  left: 50%;
+  transform: translateX(-50%);
+`;
+
 interface IAddCategoryForm {
   categoryName: string;
-  [attrs: string]: string;
+  [inputName: string]: string;
 }
 
 interface IAddCategoryModalProps {
@@ -210,28 +225,42 @@ interface IAddCategoryModalProps {
 
 function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
   const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const { register, handleSubmit } = useForm<IAddCategoryForm>();
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm<IAddCategoryForm>();
+  const categoryTemplate = useRecoilValue(categoryTemplateAtom);
 
   interface ISelectingOptions {
-    [selectingOptionId: string]: string[];
+    [selectingFieldId: string]: string[];
   }
   const [options, setOptions] = useState<ISelectingOptions>({});
 
   const addCategorySubmit = async (data: IAddCategoryForm) => {
-    const typingAttrs: string[] = [];
-    const selectingAttrs: { [selectingAttr: string]: string[] } = {};
-    Object.keys(data).forEach((attr) => {
-      if (attr.includes("typingAttr")) typingAttrs.push(data[attr]);
-      else if (attr.includes("selectingAttr")) {
-        const id = attr.slice(14);
-        selectingAttrs[data[attr]] = options[id];
+    if (categoryTemplate[data.categoryName]) return setError("categoryName", { message: ERROR_CATEGORY_DUPLICATE }, { shouldFocus: true });
+
+    const typingFields: string[] = [];
+    const selectingFieldsAndOptions: { [selectingField: string]: string[] } = {};
+    Object.keys(data).forEach((inputName) => {
+      if (inputName.includes("typingField")) typingFields.push(data[inputName]);
+      else if (inputName.includes("selectingField")) {
+        const selectingFieldID = inputName.slice(15);
+        selectingFieldsAndOptions[data[inputName]] = options[selectingFieldID];
       }
     });
+
+    const fieldnames = typingFields.concat(Object.keys(selectingFieldsAndOptions));
+    if (fieldnames.length !== fieldnames.filter((fieldname, index) => fieldnames.indexOf(fieldname) === index).length)
+      return setError("categoryName", { message: ERROR_FIELD_DUPLICATE }, { shouldFocus: true });
+
     const newCategory = {
-      typingAttrs,
-      selectingAttrs,
+      typingFields,
+      selectingFieldsAndOptions,
       createdAt: Date.now(),
     };
+
     try {
       await setDoc(
         doc(dbService, "MyLikes_template", `template_${loggedInUser?.uid}`),
@@ -270,8 +299,12 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
   const onOptionInputChange = (id: string, event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.value[event.target.value.length - 1] === ",") {
       const newOptions = Object.assign({}, options);
-      if (newOptions[id]) newOptions[id] = [...newOptions[id], event.target.value.slice(0, event.target.value.length - 1)];
-      else newOptions[id] = [event.target.value.slice(0, event.target.value.length - 1)];
+      const newOption = event.target.value.slice(0, event.target.value.length - 1);
+
+      if (!newOptions[id]) newOptions[id] = [newOption];
+      else if (newOptions[id].indexOf(newOption) !== -1) return;
+      else newOptions[id] = [...newOptions[id], newOption];
+
       setOptions(newOptions);
       event.target.value = "";
     }
@@ -294,6 +327,7 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
                 autoComplete="off"
                 {...register("categoryName", { required: true })}
               ></TemplateHeaderInput>
+              <ErrorMessage>{errors?.categoryName?.message}</ErrorMessage>
             </Title>
             <CloseButton onClick={onModalOffClick}>×</CloseButton>
 
@@ -303,7 +337,7 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
                   <TemplateInput
                     placeholder="field name"
                     autoComplete="off"
-                    {...register(`typingAttr_${id}`, {
+                    {...register(`typingField_${id}`, {
                       required: true,
                       pattern: /^[a-z0-9]+$/i,
                     })}
@@ -323,9 +357,8 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
                 <InputLine key={id}>
                   <TemplateInput
                     placeholder="field name"
-                    id="selectingAttr"
                     autoComplete="off"
-                    {...register(`selectingAttr_${id}`)}
+                    {...register(`selectingField_${id}`, { pattern: /^[a-z0-9]+$/i })}
                   ></TemplateInput>
 
                   <TemplateInputBox>

@@ -26,50 +26,54 @@ const ModalBackground = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 2;
 `;
 
 const ModalWindow = styled.div`
-  display: "flex";
+  display: flex;
   background-color: white;
-  border: 4px solid navy;
+  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3);
   border-radius: 15px;
-  width: 500px;
+  width: 550px;
   flex-direction: column;
-  position: relative;
   justify-content: center;
   align-items: center;
   animation: ${animation_show} 0.1s ease-out;
+  position: relative;
 `;
 
-const Header = styled.div`
-  display: flex;
-  justify-content: center;
-  margin: 25px;
+const Title = styled.div`
+  background: linear-gradient(to bottom, #ff8e9b, #fb7887);
+  box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
+  border-radius: 30px;
+  padding: 5px 20px;
+  margin: 40px 0px;
+  position: relative;
 `;
 
-const Title = styled.h1`
-  font-size: 28px;
-  font-weight: 600;
+const TitleText = styled.div`
+  width: 300px;
+  height: 35px;
+  line-height: 35px;
+  text-align: center;
+  font-size: 25px;
+  color: var(--white);
 `;
 
 const CloseButton = styled.button`
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 45px;
+  right: 30px;
   background-color: transparent;
   border: none;
   font-size: 22px;
   color: rgba(0, 0, 0, 0.3);
   cursor: pointer;
   transition: 0.2s;
+
   &:hover {
     color: rgba(0, 0, 0, 0.7);
   }
-`;
-
-const Container = styled.div`
-  display: flex;
-  justify-content: center;
 `;
 
 const Form = styled.form`
@@ -77,16 +81,32 @@ const Form = styled.form`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 10px;
 `;
 
 const InputLine = styled.div`
   position: relative;
-  left: -10px;
-  margin-top: 10px;
-  width: 400px;
   display: flex;
   justify-content: center;
+`;
+
+const Input = styled.input`
+  width: 250px;
+  height: 35px;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.1);
+  outline: none;
+  background-color: inherit;
+  font-size: 18px;
+  transition: border-bottom 0.3s;
+  text-align: center;
+  margin-bottom: 10px;
+
+  &::placeholder {
+    color: #a8a8a8;
+    font-weight: 400;
+    font-size: 15px;
+  }
 `;
 
 const Label = styled.label`
@@ -96,43 +116,51 @@ const Label = styled.label`
   display: inline-block;
   width: 85px;
   height: 40px;
-  text-align: right;
+  text-align: center;
   color: black;
   padding-right: 10px;
   font-size: 20px;
 `;
 
-const Input = styled.input`
-  width:250px;
-  height: 35px;
+const Button = styled.button`
+  background-color: transparent;
+  box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
   border: none;
-  border-bottom: 1px solid gray;
-  outline: none;
-  background-color: inherit;
-  color: black;
-  font-size: 20px;
-  transition: border-bottom 0.3s;
-  &:focus {
-    border-bottom: 1px solid black;
-    }
+  border-radius: 25px;
+  color: gray;
+  font-size: 18px;
+  margin: 40px 0px;
+  padding: 5px 30px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: linear-gradient(to bottom, #ff8e9b, #fb7887);
+    color: white;
   }
 `;
 
-const Button = styled.button`
-  background-color: transparent;
-  border: 1px solid black;
-  border-radius: 15px;
-  width: 300px;
+const Select = styled.select`
+  width: 250px;
   height: 35px;
-  color: black;
-  font-size: 20px;
-  margin: 25px;
-  margin-top: 80px;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0px 0px 1px 1px rgba(0, 0, 0, 0.1);
+  outline: none;
+  background-color: inherit;
+  font-size: 18px;
+  transition: border-bottom 0.3s;
+  text-align: center;
+  margin-bottom: 10px;
+  background: white;
   cursor: pointer;
-  transition: background-color, color 0.3s;
-  &:hover {
-    background-color: navy;
-    color: white;
+
+  appearance: none;
+  -webkit-appearance: none; /* 사파리, 크롬 하위버전용 */
+  -moz-appearance: none; /* 사파리, 크롬 하위버전용 */
+
+  &::-ms-expand {
+    display: none;
   }
 `;
 
@@ -171,11 +199,11 @@ function Modal({ onModalOffClick }: IModalProps) {
     }
 
     const defaultValueAfterRegister: IStringsInObject = {};
-    myLikesTemplate[currentCategory].typingAttrs.forEach((attr) => {
-      defaultValueAfterRegister[attr] = "";
+    myLikesTemplate[currentCategory].typingFields.forEach((fieldName) => {
+      defaultValueAfterRegister[fieldName] = "";
     });
-    Object.keys(myLikesTemplate[currentCategory].selectingAttrs).forEach((attr) => {
-      defaultValueAfterRegister[attr] = myLikesTemplate[currentCategory].selectingAttrs[attr][0];
+    Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).forEach((fieldName) => {
+      defaultValueAfterRegister[fieldName] = myLikesTemplate[currentCategory].selectingFieldsAndOptions[fieldName][0];
     });
     reset(defaultValueAfterRegister);
   };
@@ -183,37 +211,35 @@ function Modal({ onModalOffClick }: IModalProps) {
   return (
     <ModalBackground onClick={onModalOffClick}>
       <ModalWindow onClick={(event) => event.stopPropagation()}>
-        <Header>
-          <Title>Register</Title>
-          <CloseButton onClick={onModalOffClick}>×</CloseButton>
-        </Header>
-        <Container>
-          <Form onSubmit={handleSubmit(onSubmit)}>
-            {myLikesTemplate[currentCategory]?.typingAttrs.map((header) => (
-              <InputLine key={header}>
-                <Label htmlFor="header">{header}</Label>
-                <Input id={header} placeholder={header} autoComplete="off" {...register(header, { required: true })} />
-              </InputLine>
-            ))}
-            {myLikesTemplate[currentCategory]?.selectingAttrs
-              ? Object.keys(myLikesTemplate[currentCategory].selectingAttrs).map((attr) => {
-                  return (
-                    <InputLine key={attr}>
-                      <Label htmlFor={attr}>{attr}</Label>
-                      <select id={attr} {...register(attr, { required: true })}>
-                        {myLikesTemplate[currentCategory].selectingAttrs[attr].map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
-                    </InputLine>
-                  );
-                })
-              : null}
-            <Button>Add</Button>
-          </Form>
-        </Container>
+        <Title>
+          <TitleText>{category}</TitleText>
+        </Title>
+        <CloseButton onClick={onModalOffClick}>×</CloseButton>
+        <Form onSubmit={handleSubmit(onSubmit)}>
+          {myLikesTemplate[currentCategory]?.typingFields.map((fieldName) => (
+            <InputLine key={fieldName}>
+              <Label htmlFor="header">{fieldName}</Label>
+              <Input id={fieldName} placeholder={fieldName} autoComplete="off" {...register(fieldName, { required: true })} />
+            </InputLine>
+          ))}
+          {myLikesTemplate[currentCategory]?.selectingFieldsAndOptions
+            ? Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).map((fieldName) => {
+                return (
+                  <InputLine key={fieldName}>
+                    <Label htmlFor={fieldName}>{fieldName}</Label>
+                    <Select id={fieldName} {...register(fieldName, { required: true })}>
+                      {myLikesTemplate[currentCategory].selectingFieldsAndOptions[fieldName].map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </Select>
+                  </InputLine>
+                );
+              })
+            : null}
+          <Button>add item</Button>
+        </Form>
       </ModalWindow>
     </ModalBackground>
   );

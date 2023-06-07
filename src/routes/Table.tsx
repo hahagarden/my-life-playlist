@@ -155,7 +155,9 @@ function Table() {
   };
 
   const TrLength =
-    (myLikesTemplate[currentCategory].typingAttrs.length || 0) + Object.keys(myLikesTemplate[currentCategory].selectingAttrs).length + 1;
+    (myLikesTemplate[currentCategory].typingFields.length || 0) +
+    Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).length +
+    1;
 
   return (
     <TableWrapper>
@@ -164,11 +166,11 @@ function Table() {
           <thead>
             <Tr headerLength={TrLength}>
               <Th>Rank</Th>
-              {myLikesTemplate[currentCategory].typingAttrs.map((attr, index) => (
-                <Th key={index}>{attr.charAt(0).toUpperCase() + attr.slice(1)}</Th>
+              {myLikesTemplate[currentCategory].typingFields.map((fieldName, index) => (
+                <Th key={index}>{fieldName}</Th>
               ))}
-              {Object.keys(myLikesTemplate[currentCategory].selectingAttrs).map((attr, index) => (
-                <Th key={index}>{attr.charAt(0).toUpperCase() + attr.slice(1)}</Th>
+              {Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).map((fieldName, index) => (
+                <Th key={index}>{fieldName}</Th>
               ))}
             </Tr>
           </thead>
@@ -186,12 +188,12 @@ function Table() {
                         {...provided.dragHandleProps}
                       >
                         <Td>{ranking[like.id]}</Td>
-                        {myLikesTemplate[currentCategory]?.typingAttrs.map((attr) => (
-                          <Td key={attr}>{like[attr]}</Td>
+                        {myLikesTemplate[currentCategory]?.typingFields.map((fieldName) => (
+                          <Td key={fieldName}>{like[fieldName]}</Td>
                         ))}
-                        {myLikesTemplate[currentCategory]?.selectingAttrs
-                          ? Object.keys(myLikesTemplate[currentCategory].selectingAttrs).map((attr, index) => (
-                              <Td key={index}>{like[attr]}</Td>
+                        {myLikesTemplate[currentCategory]?.selectingFieldsAndOptions
+                          ? Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).map((fieldName, index) => (
+                              <Td key={index}>{like[fieldName]}</Td>
                             ))
                           : null}
                         <DeleteTd onClick={(e) => onDelete(like)}>

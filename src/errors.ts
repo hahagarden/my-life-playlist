@@ -13,3 +13,7 @@ export const ERROR_LOGIN_FAILURE = "로그인인에 실패하였습니다.";
 // join
 export const ERROR_EMAIL_DUPLICATE = "이미 가입된 이메일입니다.";
 export const ERROR_JOIN_FAILURE = "가입에 실패하였습니다.";
+
+// addCategoryModal
+export const ERROR_CATEGORY_DUPLICATE = "이미 등록된 카테고리입니다.";
+export const ERROR_FIELD_DUPLICATE = "중복된 필드가 있습니다.";
