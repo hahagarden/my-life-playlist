@@ -6,7 +6,8 @@ import { setDoc, doc } from "firebase/firestore";
 import { nanoid } from "nanoid";
 
 import { dbService } from "../fbase";
-import { loggedInUserAtom } from "../atom";
+import { loggedInUserAtom, categoryTemplateAtom } from "../atom";
+import { ERROR_CATEGORY_DUPLICATE } from "../errors";
 
 const animation_show = keyframes`
   from{
@@ -48,6 +49,7 @@ const Title = styled.div`
   border-radius: 30px;
   padding: 5px 20px;
   margin: 40px 0px;
+  position: relative;
 `;
 
 const CloseButton = styled.button`
@@ -199,6 +201,19 @@ const OptionTag = styled.div`
   }
 `;
 
+const ErrorMessage = styled.p`
+  width: 15rem;
+  height: 2rem;
+  text-align: center;
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
+  color: var(--red);
+  position: absolute;
+  top: 45px;
+  left: 50%;
+  transform: translateX(-50%);
+`;
+
 interface IAddCategoryForm {
   categoryName: string;
   [attrs: string]: string;
@@ -210,7 +225,13 @@ interface IAddCategoryModalProps {
 
 function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
   const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const { register, handleSubmit } = useForm<IAddCategoryForm>();
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm<IAddCategoryForm>();
+  const categoryTemplate = useRecoilValue(categoryTemplateAtom);
 
   interface ISelectingOptions {
     [selectingOptionId: string]: string[];
@@ -218,6 +239,8 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
   const [options, setOptions] = useState<ISelectingOptions>({});
 
   const addCategorySubmit = async (data: IAddCategoryForm) => {
+    if (categoryTemplate[data.categoryName]) return setError("categoryName", { message: ERROR_CATEGORY_DUPLICATE }, { shouldFocus: true });
+
     const typingAttrs: string[] = [];
     const selectingAttrs: { [selectingAttr: string]: string[] } = {};
     Object.keys(data).forEach((attr) => {
@@ -298,6 +321,7 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
                 autoComplete="off"
                 {...register("categoryName", { required: true })}
               ></TemplateHeaderInput>
+              <ErrorMessage>{errors?.categoryName?.message}</ErrorMessage>
             </Title>
             <CloseButton onClick={onModalOffClick}>×</CloseButton>
 
