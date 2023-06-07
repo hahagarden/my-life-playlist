@@ -270,8 +270,12 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
   const onOptionInputChange = (id: string, event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.value[event.target.value.length - 1] === ",") {
       const newOptions = Object.assign({}, options);
-      if (newOptions[id]) newOptions[id] = [...newOptions[id], event.target.value.slice(0, event.target.value.length - 1)];
-      else newOptions[id] = [event.target.value.slice(0, event.target.value.length - 1)];
+      const newOption = event.target.value.slice(0, event.target.value.length - 1);
+
+      if (!newOptions[id]) newOptions[id] = [newOption];
+      else if (newOptions[id].indexOf(newOption) !== -1) return;
+      else newOptions[id] = [...newOptions[id], newOption];
+
       setOptions(newOptions);
       event.target.value = "";
     }
