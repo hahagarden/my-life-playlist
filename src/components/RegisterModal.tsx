@@ -199,11 +199,11 @@ function Modal({ onModalOffClick }: IModalProps) {
     }
 
     const defaultValueAfterRegister: IStringsInObject = {};
-    myLikesTemplate[currentCategory].typingAttrs.forEach((attr) => {
-      defaultValueAfterRegister[attr] = "";
+    myLikesTemplate[currentCategory].typingFields.forEach((fieldName) => {
+      defaultValueAfterRegister[fieldName] = "";
     });
-    Object.keys(myLikesTemplate[currentCategory].selectingAttrs).forEach((attr) => {
-      defaultValueAfterRegister[attr] = myLikesTemplate[currentCategory].selectingAttrs[attr][0];
+    Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).forEach((fieldName) => {
+      defaultValueAfterRegister[fieldName] = myLikesTemplate[currentCategory].selectingFieldsAndOptions[fieldName][0];
     });
     reset(defaultValueAfterRegister);
   };
@@ -216,19 +216,19 @@ function Modal({ onModalOffClick }: IModalProps) {
         </Title>
         <CloseButton onClick={onModalOffClick}>×</CloseButton>
         <Form onSubmit={handleSubmit(onSubmit)}>
-          {myLikesTemplate[currentCategory]?.typingAttrs.map((header) => (
-            <InputLine key={header}>
-              <Label htmlFor="header">{header}</Label>
-              <Input id={header} placeholder={header} autoComplete="off" {...register(header, { required: true })} />
+          {myLikesTemplate[currentCategory]?.typingFields.map((fieldName) => (
+            <InputLine key={fieldName}>
+              <Label htmlFor="header">{fieldName}</Label>
+              <Input id={fieldName} placeholder={fieldName} autoComplete="off" {...register(fieldName, { required: true })} />
             </InputLine>
           ))}
-          {myLikesTemplate[currentCategory]?.selectingAttrs
-            ? Object.keys(myLikesTemplate[currentCategory].selectingAttrs).map((attr) => {
+          {myLikesTemplate[currentCategory]?.selectingFieldsAndOptions
+            ? Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).map((fieldName) => {
                 return (
-                  <InputLine key={attr}>
-                    <Label htmlFor={attr}>{attr}</Label>
-                    <Select id={attr} {...register(attr, { required: true })}>
-                      {myLikesTemplate[currentCategory].selectingAttrs[attr].map((option) => (
+                  <InputLine key={fieldName}>
+                    <Label htmlFor={fieldName}>{fieldName}</Label>
+                    <Select id={fieldName} {...register(fieldName, { required: true })}>
+                      {myLikesTemplate[currentCategory].selectingFieldsAndOptions[fieldName].map((option) => (
                         <option key={option} value={option}>
                           {option}
                         </option>

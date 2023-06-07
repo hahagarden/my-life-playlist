@@ -180,19 +180,21 @@ function UpdateModal({ like, modalClose }: IUpdateModalProps) {
   const currentCategory = category ?? "";
   const { register, handleSubmit, setValue } = useForm<IForm>();
   useEffect(() => {
-    myLikesTemplate[currentCategory]?.typingAttrs.forEach((header) => setValue(header, like[header]));
-    Object.keys(myLikesTemplate[currentCategory]?.selectingAttrs).forEach((header) => setValue(header, like[header]));
+    myLikesTemplate[currentCategory]?.typingFields.forEach((fieldName) => setValue(fieldName, like[fieldName]));
+    Object.keys(myLikesTemplate[currentCategory]?.selectingFieldsAndOptions).forEach((fieldName) => setValue(fieldName, like[fieldName]));
   });
 
   const onSubmit = async (data: IForm) => {
-    if (!myLikesTemplate[currentCategory]?.typingAttrs.filter((attr) => like[attr] !== data[attr])) {
+    if (!myLikesTemplate[currentCategory]?.typingFields.filter((fieldName) => like[fieldName] !== data[fieldName])) {
       alert("there is no change.");
       return;
     } else if (window.confirm("are you sure updating data?")) {
       const updatingSong = doc(dbService, currentCategory, like.id);
       let updatedLike: { [key: string]: string | number } = {};
-      myLikesTemplate[currentCategory]?.typingAttrs.forEach((attr) => (updatedLike[attr] = data[attr]));
-      Object.keys(myLikesTemplate[currentCategory]?.selectingAttrs).forEach((attr) => (updatedLike[attr] = data[attr]));
+      myLikesTemplate[currentCategory]?.typingFields.forEach((fieldName) => (updatedLike[fieldName] = data[fieldName]));
+      Object.keys(myLikesTemplate[currentCategory]?.selectingFieldsAndOptions).forEach(
+        (fieldName) => (updatedLike[fieldName] = data[fieldName])
+      );
       await updateDoc(updatingSong, {
         ...updatedLike,
         updatedAt: Date.now(),
@@ -209,19 +211,19 @@ function UpdateModal({ like, modalClose }: IUpdateModalProps) {
         </Title>
         <CloseButton onClick={modalClose}>×</CloseButton>
         <Form onSubmit={handleSubmit(onSubmit)}>
-          {myLikesTemplate[currentCategory]?.typingAttrs.map((header) => (
-            <InputLine key={header}>
-              <Label htmlFor={header}>{header}</Label>
-              <Input id={header} placeholder={header} autoComplete="off" {...register(header, { required: true })} />
+          {myLikesTemplate[currentCategory]?.typingFields.map((fieldName) => (
+            <InputLine key={fieldName}>
+              <Label htmlFor={fieldName}>{fieldName}</Label>
+              <Input id={fieldName} placeholder={fieldName} autoComplete="off" {...register(fieldName, { required: true })} />
             </InputLine>
           ))}
-          {myLikesTemplate[currentCategory]?.selectingAttrs
-            ? Object.keys(myLikesTemplate[currentCategory]?.selectingAttrs).map((attr) => {
+          {myLikesTemplate[currentCategory]?.selectingFieldsAndOptions
+            ? Object.keys(myLikesTemplate[currentCategory]?.selectingFieldsAndOptions).map((fieldName) => {
                 return (
-                  <InputLine key={attr}>
-                    <Label htmlFor={attr}>{attr}</Label>
-                    <Select id={attr} {...register(attr, { required: true })}>
-                      {myLikesTemplate[currentCategory]?.selectingAttrs[attr].map((option) => (
+                  <InputLine key={fieldName}>
+                    <Label htmlFor={fieldName}>{fieldName}</Label>
+                    <Select id={fieldName} {...register(fieldName, { required: true })}>
+                      {myLikesTemplate[currentCategory]?.selectingFieldsAndOptions[fieldName].map((option) => (
                         <option key={option} value={option}>
                           {option}
                         </option>

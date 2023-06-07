@@ -8,8 +8,8 @@ export const loggedInUserAtom = atom<ILoggedInUser | null>({
 
 export interface ICategoryTemplate {
   [category: string]: {
-    typingAttrs: string[];
-    selectingAttrs: { [option: string]: string[] };
+    typingFields: string[];
+    selectingFieldsAndOptions: { [fieldName: string]: string[] };
     createdAt: number;
   };
 }

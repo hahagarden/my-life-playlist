@@ -49,11 +49,11 @@ function PaintCard({ like, index }: CardProps) {
           {...provided.draggableProps}
         >
           {mouseOn
-            ? myLikesTemplate[currentCategory]?.typingAttrs
+            ? myLikesTemplate[currentCategory]?.typingFields
                 .slice(1)
                 .map((attr) => `${like[attr]}`)
                 .join(" | ")
-            : like[myLikesTemplate[currentCategory]?.typingAttrs[0]]}
+            : like[myLikesTemplate[currentCategory]?.typingFields[0]]}
         </DraggableCard>
       )}
     </Draggable>

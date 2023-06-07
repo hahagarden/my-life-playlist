@@ -216,7 +216,7 @@ const ErrorMessage = styled.p`
 
 interface IAddCategoryForm {
   categoryName: string;
-  [attrs: string]: string;
+  [inputName: string]: string;
 }
 
 interface IAddCategoryModalProps {
@@ -234,32 +234,33 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
   const categoryTemplate = useRecoilValue(categoryTemplateAtom);
 
   interface ISelectingOptions {
-    [selectingOptionId: string]: string[];
+    [selectingFieldId: string]: string[];
   }
   const [options, setOptions] = useState<ISelectingOptions>({});
 
   const addCategorySubmit = async (data: IAddCategoryForm) => {
     if (categoryTemplate[data.categoryName]) return setError("categoryName", { message: ERROR_CATEGORY_DUPLICATE }, { shouldFocus: true });
 
-    const typingAttrs: string[] = [];
-    const selectingAttrs: { [selectingAttr: string]: string[] } = {};
-    Object.keys(data).forEach((attr) => {
-      if (attr.includes("typingAttr")) typingAttrs.push(data[attr]);
-      else if (attr.includes("selectingAttr")) {
-        const id = attr.slice(14);
-        selectingAttrs[data[attr]] = options[id];
+    const typingFields: string[] = [];
+    const selectingFieldsAndOptions: { [selectingField: string]: string[] } = {};
+    Object.keys(data).forEach((inputName) => {
+      if (inputName.includes("typingField")) typingFields.push(data[inputName]);
+      else if (inputName.includes("selectingField")) {
+        const selectingFieldID = inputName.slice(15);
+        selectingFieldsAndOptions[data[inputName]] = options[selectingFieldID];
       }
     });
 
-    const fieldnames = typingAttrs.concat(Object.keys(selectingAttrs));
+    const fieldnames = typingFields.concat(Object.keys(selectingFieldsAndOptions));
     if (fieldnames.length !== fieldnames.filter((fieldname, index) => fieldnames.indexOf(fieldname) === index).length)
       return setError("categoryName", { message: ERROR_FIELD_DUPLICATE }, { shouldFocus: true });
 
     const newCategory = {
-      typingAttrs,
-      selectingAttrs,
+      typingFields,
+      selectingFieldsAndOptions,
       createdAt: Date.now(),
     };
+
     try {
       await setDoc(
         doc(dbService, "MyLikes_template", `template_${loggedInUser?.uid}`),
@@ -336,7 +337,7 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
                   <TemplateInput
                     placeholder="field name"
                     autoComplete="off"
-                    {...register(`typingAttr_${id}`, {
+                    {...register(`typingField_${id}`, {
                       required: true,
                       pattern: /^[a-z0-9]+$/i,
                     })}
@@ -356,9 +357,8 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
                 <InputLine key={id}>
                   <TemplateInput
                     placeholder="field name"
-                    id="selectingAttr"
                     autoComplete="off"
-                    {...register(`selectingAttr_${id}`)}
+                    {...register(`selectingField_${id}`, { pattern: /^[a-z0-9]+$/i })}
                   ></TemplateInput>
 
                   <TemplateInputBox>
