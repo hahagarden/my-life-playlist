@@ -7,7 +7,7 @@ import { nanoid } from "nanoid";
 
 import { dbService } from "../fbase";
 import { loggedInUserAtom, categoryTemplateAtom } from "../atom";
-import { ERROR_CATEGORY_DUPLICATE } from "../errors";
+import { ERROR_CATEGORY_DUPLICATE, ERROR_FIELD_DUPLICATE } from "../errors";
 
 const animation_show = keyframes`
   from{
@@ -250,6 +250,11 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
         selectingAttrs[data[attr]] = options[id];
       }
     });
+
+    const fieldnames = typingAttrs.concat(Object.keys(selectingAttrs));
+    if (fieldnames.length !== fieldnames.filter((fieldname, index) => fieldnames.indexOf(fieldname) === index).length)
+      return setError("categoryName", { message: ERROR_FIELD_DUPLICATE }, { shouldFocus: true });
+
     const newCategory = {
       typingAttrs,
       selectingAttrs,
