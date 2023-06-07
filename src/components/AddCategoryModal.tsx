@@ -32,7 +32,7 @@ const ModalBackground = styled.div`
 `;
 
 const ModalWindow = styled.div`
-  display: "flex";
+  display: flex;
   background-color: white;
   box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.3);
   border-radius: 15px;
@@ -55,7 +55,7 @@ const Title = styled.div`
 const CloseButton = styled.button`
   position: absolute;
   top: 45px;
-  right: 30px;
+  right: -35px;
   background-color: transparent;
   border: none;
   font-size: 22px;
