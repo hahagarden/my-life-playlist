@@ -1,20 +1,10 @@
 {
   "files": {
-    "main.js": "/my-life-playlist/static/js/main.40249b37.js",
-    "static/media/img4.jpg": "/my-life-playlist/static/media/img4.3af62a65198be2b43b9f.jpg",
-    "static/media/img6.jpg": "/my-life-playlist/static/media/img6.8d14cf81b384f20c9faa.jpg",
-    "static/media/img2.jpg": "/my-life-playlist/static/media/img2.5ac4d8b0d4e59ffccdd4.jpg",
-    "static/media/img3.jpg": "/my-life-playlist/static/media/img3.e20821e3c691d6139463.jpg",
-    "static/media/img5.jpg": "/my-life-playlist/static/media/img5.f3561fd2c476b0a77627.jpg",
-    "static/media/img1.jpg": "/my-life-playlist/static/media/img1.647b74c22239c5b40a55.jpg",
-    "static/media/img10.jpg": "/my-life-playlist/static/media/img10.f5e47965069a1eca3e32.jpg",
-    "static/media/img9.jpg": "/my-life-playlist/static/media/img9.531c9b4750c1ed86f3a0.jpg",
-    "static/media/img7.jpg": "/my-life-playlist/static/media/img7.9d8dc91dcacb97c5d721.jpg",
-    "static/media/img8.jpg": "/my-life-playlist/static/media/img8.d61532ac64eee707dba3.jpg",
+    "main.js": "/my-life-playlist/static/js/main.e3a1813c.js",
     "index.html": "/my-life-playlist/index.html",
-    "main.40249b37.js.map": "/my-life-playlist/static/js/main.40249b37.js.map"
+    "main.e3a1813c.js.map": "/my-life-playlist/static/js/main.e3a1813c.js.map"
   },
   "entrypoints": [
-    "static/js/main.40249b37.js"
+    "static/js/main.e3a1813c.js"
   ]
 }
