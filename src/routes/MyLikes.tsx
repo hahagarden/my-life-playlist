@@ -8,28 +8,17 @@ import { loggedInUserAtom, categoryTemplateAtom } from "../atom";
 import CategoryCard from "../components/CategoryCard";
 import AddCategoryModal from "../components/AddCategoryModal";
 
-import img1 from "../img/img1.jpg";
-import img2 from "../img/img2.jpg";
-import img3 from "../img/img3.jpg";
-import img4 from "../img/img4.jpg";
-import img5 from "../img/img5.jpg";
-import img6 from "../img/img6.jpg";
-import img7 from "../img/img7.jpg";
-import img8 from "../img/img8.jpg";
-import img9 from "../img/img9.jpg";
-import img10 from "../img/img10.jpg";
-
 const imgSrc: { [key: number]: any } = {
-  1: img1,
-  2: img2,
-  3: img3,
-  4: img4,
-  5: img5,
-  6: img6,
-  7: img7,
-  8: img8,
-  9: img9,
-  10: img10,
+  1: `${process.env.PUBLIC_URL}/img/img1.jpg`,
+  2: `${process.env.PUBLIC_URL}/img/img2.jpg`,
+  3: `${process.env.PUBLIC_URL}/img/img3.jpg`,
+  4: `${process.env.PUBLIC_URL}/img/img4.jpg`,
+  5: `${process.env.PUBLIC_URL}/img/img5.jpg`,
+  6: `${process.env.PUBLIC_URL}/img/img6.jpg`,
+  7: `${process.env.PUBLIC_URL}/img/img7.jpg`,
+  8: `${process.env.PUBLIC_URL}/img/img8.jpg`,
+  9: `${process.env.PUBLIC_URL}/img/img9.jpg`,
+  10: `${process.env.PUBLIC_URL}/img/img10.jpg`,
 };
 
 const MyLikesWrapper = styled.div`
