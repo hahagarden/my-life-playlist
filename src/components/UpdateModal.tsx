@@ -182,7 +182,7 @@ function UpdateModal({ like, modalClose }: IUpdateModalProps) {
   useEffect(() => {
     myLikesTemplate[currentCategory]?.typingFields.forEach((fieldName) => setValue(fieldName, like[fieldName]));
     Object.keys(myLikesTemplate[currentCategory]?.selectingFieldsAndOptions).forEach((fieldName) => setValue(fieldName, like[fieldName]));
-  });
+  }, []);
 
   const onSubmit = async (data: IForm) => {
     if (!myLikesTemplate[currentCategory]?.typingFields.filter((fieldName) => like[fieldName] !== data[fieldName])) {
