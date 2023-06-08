@@ -144,7 +144,7 @@ export default function MyLikes() {
     { name: templates[0], img: imgSrc[1] },
     { name: templates[2], img: imgSrc[3] },
     { name: templates[4], img: imgSrc[5] },
-    ...templates.slice(CARDS_PER_PAGE).map((name, index) => ({ name, img: imgSrc[index + 1] })),
+    ...templates.slice(CARDS_PER_PAGE).map((name, index) => ({ name, img: imgSrc[index + 6] })),
   ]; // 현재 로직은 카테고리 10개까지만 생성 가능
 
   useEffect(() => {
