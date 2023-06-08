@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/my-life-playlist/static/js/main.90c9b4f8.js",
+    "main.js": "/my-life-playlist/static/js/main.d34c6037.js",
     "index.html": "/my-life-playlist/index.html",
-    "main.90c9b4f8.js.map": "/my-life-playlist/static/js/main.90c9b4f8.js.map"
+    "main.d34c6037.js.map": "/my-life-playlist/static/js/main.d34c6037.js.map"
   },
   "entrypoints": [
-    "static/js/main.90c9b4f8.js"
+    "static/js/main.d34c6037.js"
   ]
 }
