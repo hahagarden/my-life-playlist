@@ -339,7 +339,7 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
                     autoComplete="off"
                     {...register(`typingField_${id}`, {
                       required: true,
-                      pattern: /^[a-z0-9]+$/i,
+                      pattern: /^[a-z0-9가-힣]+$/i,
                     })}
                   ></TemplateInput>
                   <AddButton type="button" onClick={addTemplateInputClick}>
@@ -358,7 +358,7 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
                   <TemplateInput
                     placeholder="field name"
                     autoComplete="off"
-                    {...register(`selectingField_${id}`, { pattern: /^[a-z0-9]+$/i })}
+                    {...register(`selectingField_${id}`, { pattern: /^[a-z0-9가-힣]+$/i })}
                   ></TemplateInput>
 
                   <TemplateInputBox>

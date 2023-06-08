@@ -8,6 +8,30 @@ import { loggedInUserAtom, categoryTemplateAtom } from "../atom";
 import CategoryCard from "../components/CategoryCard";
 import AddCategoryModal from "../components/AddCategoryModal";
 
+import img1 from "../img/img1.jpg";
+import img2 from "../img/img2.jpg";
+import img3 from "../img/img3.jpg";
+import img4 from "../img/img4.jpg";
+import img5 from "../img/img5.jpg";
+import img6 from "../img/img6.jpg";
+import img7 from "../img/img7.jpg";
+import img8 from "../img/img8.jpg";
+import img9 from "../img/img9.jpg";
+import img10 from "../img/img10.jpg";
+
+const imgSrc: { [key: number]: any } = {
+  1: img1,
+  2: img2,
+  3: img3,
+  4: img4,
+  5: img5,
+  6: img6,
+  7: img7,
+  8: img8,
+  9: img9,
+  10: img10,
+};
+
 const MyLikesWrapper = styled.div`
   width: 100vw;
   height: calc(100vh - 5rem);
@@ -114,7 +138,14 @@ export default function MyLikes() {
   const [categoryTemplate, setCategoryTemplate] = useRecoilState(categoryTemplateAtom);
   const [slideIndex, setSlideIndex] = useState(0);
   const templates = Object.keys(categoryTemplate).sort((a, b) => categoryTemplate[a].createdAt - categoryTemplate[b].createdAt);
-  const templateSlide = [templates[3], templates[1], templates[0], templates[2], templates[4], ...templates.slice(CARDS_PER_PAGE)];
+  const templateSlide = [
+    { name: templates[3], img: imgSrc[4] },
+    { name: templates[1], img: imgSrc[2] },
+    { name: templates[0], img: imgSrc[1] },
+    { name: templates[2], img: imgSrc[3] },
+    { name: templates[4], img: imgSrc[5] },
+    ...templates.slice(CARDS_PER_PAGE).map((name, index) => ({ name, img: imgSrc[index + 1] })),
+  ]; // 현재 로직은 카테고리 10개까지만 생성 가능
 
   useEffect(() => {
     onSnapshot(doc(dbService, "MyLikes_template", `template_${loggedInUser?.uid}`), (doc) => {
@@ -157,8 +188,8 @@ export default function MyLikes() {
       </ScrollButton>
       <CategoryCards>
         {templateSlide.slice(slideIndex, slideIndex + CARDS_PER_PAGE).map((template, index) => (
-          <CategoryCard nth={index + 1} key={index + 1}>
-            {template}
+          <CategoryCard nth={index + 1} key={index + 1} imgSrc={template.img}>
+            {template.name}
           </CategoryCard>
         ))}
       </CategoryCards>

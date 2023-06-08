@@ -5,7 +5,7 @@ const Card = styled(Link)<{ nth: number }>`
   background-color: rgba(255, 255, 255, 0.5);
   box-shadow: 0px 0px 4px 4px rgba(255, 255, 255, 0.1);
   width: ${(props) =>
-    props.nth === 1 ? "16%" : props.nth === 2 ? "17%" : props.nth === 3 ? "20%" : props.nth === 4 ? "17%" : props.nth === 5 ? "16%" : null};
+    props.nth === 1 ? "17%" : props.nth === 2 ? "18%" : props.nth === 3 ? "21%" : props.nth === 4 ? "18%" : props.nth === 5 ? "17%" : null};
 
   aspect-ratio: 1/1;
 
@@ -15,20 +15,32 @@ const Card = styled(Link)<{ nth: number }>`
 `;
 
 const CardImage = styled.div`
+  width: 100%;
   height: 70%;
-`;
-
-const CardText = styled.div`
-  height: 30%;
   display: flex;
   justify-content: center;
   align-items: center;
+
+  & img {
+    width: 90%;
+    height: 90%;
+  }
 `;
 
-export default function CategoryCard({ nth, children }: { nth: number; children: string }) {
+const CardText = styled.div`
+  height: 20%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+`;
+
+export default function CategoryCard({ nth, children, imgSrc }: { nth: number; children: string; imgSrc: any }) {
   return (
     <Card to={`/${children}`} nth={nth}>
-      <CardImage />
+      <CardImage>
+        <img src={imgSrc} />
+      </CardImage>
       <CardText>{children}</CardText>
     </Card>
   );
