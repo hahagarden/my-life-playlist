@@ -33,6 +33,7 @@ const CardText = styled.div`
   justify-content: center;
   align-items: center;
   font-size: 30px;
+  color: rgba(0, 0, 0, 0.7);
 `;
 
 export default function CategoryCard({ nth, children, imgSrc }: { nth: number; children: string; imgSrc: any }) {

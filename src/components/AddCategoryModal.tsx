@@ -230,6 +230,7 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
     handleSubmit,
     setError,
     formState: { errors },
+    reset,
   } = useForm<IAddCategoryForm>();
   const categoryTemplate = useRecoilValue(categoryTemplateAtom);
 
@@ -267,6 +268,13 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
         { [data.categoryName]: newCategory },
         { merge: true }
       ); //add ranking_uid document
+
+      const defaultValueAfterAdd: { [key: string]: string } = {};
+      Object.keys(data).forEach((inputName) => {
+        defaultValueAfterAdd[inputName] = "";
+      });
+      reset(defaultValueAfterAdd);
+      setOptions({});
     } catch (e) {
       console.error("Error adding document", e);
     }
