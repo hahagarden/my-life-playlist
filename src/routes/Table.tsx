@@ -208,7 +208,7 @@ function Table() {
             )}
           </Droppable>
         </TableArea>
-        {updateOne !== "" ? <UpdateModal like={updateOne} modalClose={onModalOffClick} /> : ""}
+        {updateOne !== "" ? <UpdateModal like={updateOne} modalClose={onModalOffClick} /> : null}
       </DragDropContext>
     </TableWrapper>
   );

@@ -1,9 +1,11 @@
 import styled, { keyframes } from "styled-components";
 import { useRecoilValue } from "recoil";
 import { Droppable } from "react-beautiful-dnd";
+import { useState } from "react";
 
-import { likesAtom } from "../atom";
+import { ILike, likesAtom } from "../atom";
 import PaintCard from "./PaintCard";
+import UpdateModal from "./UpdateModal";
 
 const animation_board = keyframes`
   0%{
@@ -46,8 +48,18 @@ interface BoardProps {
 }
 
 function PaintBoard({ boardId, currentBoard }: BoardProps) {
-  const myLikes = useRecoilValue(likesAtom);
-  const selectedLikes = myLikes.filter((like) => like[currentBoard] == boardId);
+  const likes = useRecoilValue(likesAtom);
+  const selectedLikes = likes.filter((like) => like[currentBoard] === boardId);
+  const [updateOne, setUpdateOne] = useState<ILike | "">("");
+
+  const onModalOnDbClick = (id: string) => {
+    if (updateOne === "") {
+      setUpdateOne(likes.filter((like) => like.id === id)[0]);
+    }
+  };
+  const onModalOffClick = () => {
+    if (updateOne !== "") setUpdateOne("");
+  };
 
   return (
     <Wrapper>
@@ -56,12 +68,13 @@ function PaintBoard({ boardId, currentBoard }: BoardProps) {
         {(provided) => (
           <DroppableBoard ref={provided.innerRef} {...provided.droppableProps}>
             {selectedLikes.map((like, index) => (
-              <PaintCard key={like.id} like={like} index={index} />
+              <PaintCard key={like.id} like={like} index={index} onModalOnDbClick={onModalOnDbClick} />
             ))}
             {provided.placeholder}
           </DroppableBoard>
         )}
       </Droppable>
+      {updateOne !== "" ? <UpdateModal like={updateOne} modalClose={onModalOffClick} /> : null}
     </Wrapper>
   );
 }

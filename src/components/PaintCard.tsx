@@ -1,6 +1,5 @@
 import styled from "styled-components";
 import { Draggable } from "react-beautiful-dnd";
-import { useState } from "react";
 import { useRecoilValue } from "recoil";
 import { useParams } from "react-router-dom";
 
@@ -10,6 +9,7 @@ interface CardProps {
   key: string;
   like: ILike;
   index: number;
+  onModalOnDbClick: (id: string) => void;
 }
 
 const DraggableCard = styled.div<{ like: ILike }>`
@@ -26,34 +26,22 @@ const DraggableCard = styled.div<{ like: ILike }>`
   }
 `;
 
-function PaintCard({ like, index }: CardProps) {
+function PaintCard({ like, index, onModalOnDbClick }: CardProps) {
   const { category } = useParams();
   const currentCategory = category ?? "";
   const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
-  const [mouseOn, setMouseOn] = useState(false);
-  const onMouseEnter = () => {
-    setMouseOn(true);
-  };
-  const onMouseLeave = () => {
-    setMouseOn(false);
-  };
+
   return (
     <Draggable draggableId={like.id} index={index}>
       {(provided) => (
         <DraggableCard
-          onMouseEnter={onMouseEnter}
-          onMouseLeave={onMouseLeave}
           like={like}
           ref={provided.innerRef}
           {...provided.dragHandleProps}
           {...provided.draggableProps}
+          onDoubleClick={() => onModalOnDbClick(like.id)}
         >
-          {mouseOn
-            ? myLikesTemplate[currentCategory]?.typingFields
-                .slice(1)
-                .map((attr) => `${like[attr]}`)
-                .join(" | ")
-            : like[myLikesTemplate[currentCategory]?.typingFields[0]]}
+          {like[myLikesTemplate[currentCategory]?.typingFields[0]]}
         </DraggableCard>
       )}
     </Draggable>
