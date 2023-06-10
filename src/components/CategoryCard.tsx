@@ -38,10 +38,14 @@ const CardText = styled.div`
 
 export default function CategoryCard({ nth, children, imgSrc }: { nth: number; children: string; imgSrc: any }) {
   return (
-    <Card to={`/${children}`} nth={nth}>
-      <CardImage>
-        <img src={imgSrc} />
-      </CardImage>
+    <Card
+      to={`/${children}`}
+      nth={nth}
+      onClick={(e) => {
+        if (!children) e.preventDefault();
+      }}
+    >
+      <CardImage>{children && <img src={imgSrc} />}</CardImage>
       <CardText>{children}</CardText>
     </Card>
   );

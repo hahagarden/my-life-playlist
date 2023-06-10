@@ -18,7 +18,7 @@ const imgSrc: { [key: number]: any } = {
   7: `${process.env.PUBLIC_URL}/img/img7.jpg`,
   8: `${process.env.PUBLIC_URL}/img/img8.jpg`,
   9: `${process.env.PUBLIC_URL}/img/img9.jpg`,
-  10: `${process.env.PUBLIC_URL}/img/img10.jpg`,
+  0: `${process.env.PUBLIC_URL}/img/img0.jpg`,
 };
 
 const MyLikesWrapper = styled.div`
@@ -128,13 +128,13 @@ export default function MyLikes() {
   const [slideIndex, setSlideIndex] = useState(0);
   const templates = Object.keys(categoryTemplate).sort((a, b) => categoryTemplate[a].createdAt - categoryTemplate[b].createdAt);
   const templateSlide = [
-    { name: templates[3], img: imgSrc[4] },
-    { name: templates[1], img: imgSrc[2] },
-    { name: templates[0], img: imgSrc[1] },
-    { name: templates[2], img: imgSrc[3] },
-    { name: templates[4], img: imgSrc[5] },
-    ...templates.slice(CARDS_PER_PAGE).map((name, index) => ({ name, img: imgSrc[index + 6] })),
-  ]; // 현재 로직은 카테고리 10개까지만 생성 가능
+    templates[3],
+    templates[1],
+    templates[0],
+    templates[2],
+    templates[4],
+    ...templates.slice(CARDS_PER_PAGE).map((name) => name),
+  ];
 
   useEffect(() => {
     onSnapshot(doc(dbService, "MyLikes_template", `template_${loggedInUser?.uid}`), (doc) => {
@@ -177,8 +177,8 @@ export default function MyLikes() {
       </ScrollButton>
       <CategoryCards>
         {templateSlide.slice(slideIndex, slideIndex + CARDS_PER_PAGE).map((template, index) => (
-          <CategoryCard nth={index + 1} key={index + 1} imgSrc={template.img}>
-            {template.name}
+          <CategoryCard nth={index + 1} key={index + 1} imgSrc={template !== undefined && imgSrc[index % 10]}>
+            {template}
           </CategoryCard>
         ))}
       </CategoryCards>
