@@ -5,9 +5,20 @@ const Card = styled(Link)<{ nth: number }>`
   background-color: rgba(255, 255, 255, 0.5);
   box-shadow: 0px 0px 4px 4px rgba(255, 255, 255, 0.1);
   width: ${(props) =>
-    props.nth === 1 ? "17%" : props.nth === 2 ? "18%" : props.nth === 3 ? "21%" : props.nth === 4 ? "18%" : props.nth === 5 ? "17%" : null};
+    props.nth === 1
+      ? "17%"
+      : props.nth === 2
+      ? "18%"
+      : props.nth === 3
+      ? "21%"
+      : props.nth === 4
+      ? "18%"
+      : props.nth === 5
+      ? "17%"
+      : null};
 
   aspect-ratio: 1/1;
+  margin: 0 0.5rem;
 
   &:hover {
     background-color: rgba(255, 255, 255, 0.8);

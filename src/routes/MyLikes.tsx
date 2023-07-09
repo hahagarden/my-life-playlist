@@ -23,6 +23,7 @@ const imgSrc: { [key: number]: any } = {
 
 const MyLikesWrapper = styled.div`
   width: 100vw;
+  min-width: 800px;
   height: calc(100vh - 5rem);
   margin-top: 3rem;
   background: linear-gradient(to top right, #dfa3ff, #87aaff, #4ed5ff, #d2f7ff);
@@ -126,15 +127,19 @@ export default function MyLikes() {
   const loggedInUser = useRecoilValue(loggedInUserAtom);
   const [categoryTemplate, setCategoryTemplate] = useRecoilState(categoryTemplateAtom);
   const [slideIndex, setSlideIndex] = useState(0);
-  const templates = Object.keys(categoryTemplate).sort((a, b) => categoryTemplate[a].createdAt - categoryTemplate[b].createdAt);
+  const templates = Object.keys(categoryTemplate).sort(
+    (a, b) => categoryTemplate[a].createdAt - categoryTemplate[b].createdAt
+  );
   const templateSlide = [
-    templates[3],
-    templates[1],
-    templates[0],
-    templates[2],
-    templates[4],
-    ...templates.slice(CARDS_PER_PAGE).map((name) => name),
+    { name: templates[3], imgUrl: imgSrc[3] },
+    { name: templates[1], imgUrl: imgSrc[1] },
+    { name: templates[0], imgUrl: imgSrc[0] },
+    { name: templates[2], imgUrl: imgSrc[2] },
+    { name: templates[4], imgUrl: imgSrc[4] },
+    ...templates.slice(CARDS_PER_PAGE).map((name, index) => ({ name, imgUrl: imgSrc[(index + CARDS_PER_PAGE) % 10] })),
   ];
+
+  console.log(templateSlide);
 
   useEffect(() => {
     onSnapshot(doc(dbService, "MyLikes_template", `template_${loggedInUser?.uid}`), (doc) => {
@@ -177,8 +182,8 @@ export default function MyLikes() {
       </ScrollButton>
       <CategoryCards>
         {templateSlide.slice(slideIndex, slideIndex + CARDS_PER_PAGE).map((template, index) => (
-          <CategoryCard nth={index + 1} key={index + 1} imgSrc={template !== undefined && imgSrc[index % 10]}>
-            {template}
+          <CategoryCard nth={index + 1} key={index + 1} imgSrc={template.imgUrl}>
+            {template.name}
           </CategoryCard>
         ))}
       </CategoryCards>
