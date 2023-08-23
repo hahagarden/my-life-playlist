@@ -9,6 +9,8 @@ import { loggedInUserAtom, likesAtom, ILike, likesRankingAtom } from "../atom";
 import Table from "./Table";
 import Board from "./Board";
 import RegisterModal from "../components/RegisterModal";
+import { ReactComponent as BoardIcon } from "../assets/board.svg";
+import { ReactComponent as TableIcon } from "../assets/table.svg";
 
 const Wrapper = styled.div`
   margin-top: 3rem;
@@ -131,15 +133,11 @@ function MyLike() {
           <Button>
             {pathname === `/${category}` ? (
               <Link to={`/${category}/board`}>
-                <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 384 512">
-                  <path d="M192 0c-41.8 0-77.4 26.7-90.5 64H64C28.7 64 0 92.7 0 128V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V128c0-35.3-28.7-64-64-64H282.5C269.4 26.7 233.8 0 192 0zm0 64a32 32 0 1 1 0 64 32 32 0 1 1 0-64zM112 192H272c8.8 0 16 7.2 16 16s-7.2 16-16 16H112c-8.8 0-16-7.2-16-16s7.2-16 16-16z" />
-                </svg>
+                <BoardIcon />
               </Link>
             ) : (
               <Link to={`/${category}`}>
-                <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
-                  <path d="M0 96C0 60.7 28.7 32 64 32H448c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zm64 0v64h64V96H64zm384 0H192v64H448V96zM64 224v64h64V224H64zm384 0H192v64H448V224zM64 352v64h64V352H64zm384 0H192v64H448V352z" />
-                </svg>
+                <TableIcon />
               </Link>
             )}
           </Button>
