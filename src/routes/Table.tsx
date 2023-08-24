@@ -102,6 +102,7 @@ function Table() {
   const ranking = useRecoilValue(likesRankingAtom);
   const likes = useRecoilValue(likesAtom);
   const [updateOne, setUpdateOne] = useState<ILike | "">("");
+  const init = Object.keys(myLikesTemplate).length !== 0;
 
   const onModalOnDbClick = (id: string) => {
     if (updateOne === "") {
@@ -154,63 +155,68 @@ function Table() {
     setNewRanking(copyRanking, like.id);
   };
 
-  const TrLength =
-    (myLikesTemplate[currentCategory].typingFields.length || 0) +
-    Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).length +
-    1;
+  const TrLength = init
+    ? (myLikesTemplate[currentCategory].typingFields.length || 0) +
+      Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).length +
+      1
+    : 0;
 
   return (
-    <TableWrapper>
-      <DragDropContext onDragEnd={onDragEnd}>
-        <TableArea>
-          <thead>
-            <Tr headerLength={TrLength}>
-              <Th>Rank</Th>
-              {myLikesTemplate[currentCategory].typingFields.map((fieldName, index) => (
-                <Th key={index}>{fieldName}</Th>
-              ))}
-              {Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).map((fieldName, index) => (
-                <Th key={index}>{fieldName}</Th>
-              ))}
-            </Tr>
-          </thead>
-          <Droppable droppableId={"table"}>
-            {(provided) => (
-              <Tbody ref={provided.innerRef} {...provided.droppableProps}>
-                {likes.map((like, index) => (
-                  <Draggable key={like.id} draggableId={like.id} index={index}>
-                    {(provided, snapshot) => (
-                      <Tr
-                        headerLength={TrLength}
-                        onDoubleClick={() => onModalOnDbClick(like.id)}
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                      >
-                        <Td>{ranking[like.id]}</Td>
-                        {myLikesTemplate[currentCategory]?.typingFields.map((fieldName) => (
-                          <Td key={fieldName}>{like[fieldName]}</Td>
-                        ))}
-                        {myLikesTemplate[currentCategory]?.selectingFieldsAndOptions
-                          ? Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).map((fieldName, index) => (
-                              <Td key={index}>{like[fieldName]}</Td>
-                            ))
-                          : null}
-                        <DeleteTd onClick={(e) => onDelete(like)}>
-                          <DeleteButton>×</DeleteButton>
-                        </DeleteTd>
-                      </Tr>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </Tbody>
-            )}
-          </Droppable>
-        </TableArea>
-        {updateOne !== "" ? <UpdateModal like={updateOne} modalClose={onModalOffClick} /> : null}
-      </DragDropContext>
-    </TableWrapper>
+    <>
+      {init && (
+        <TableWrapper>
+          <DragDropContext onDragEnd={onDragEnd}>
+            <TableArea>
+              <thead>
+                <Tr headerLength={TrLength}>
+                  <Th>Rank</Th>
+                  {myLikesTemplate[currentCategory].typingFields.map((fieldName, index) => (
+                    <Th key={index}>{fieldName}</Th>
+                  ))}
+                  {Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).map((fieldName, index) => (
+                    <Th key={index}>{fieldName}</Th>
+                  ))}
+                </Tr>
+              </thead>
+              <Droppable droppableId={"table"}>
+                {(provided) => (
+                  <Tbody ref={provided.innerRef} {...provided.droppableProps}>
+                    {likes.map((like, index) => (
+                      <Draggable key={like.id} draggableId={like.id} index={index}>
+                        {(provided, snapshot) => (
+                          <Tr
+                            headerLength={TrLength}
+                            onDoubleClick={() => onModalOnDbClick(like.id)}
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                          >
+                            <Td>{ranking[like.id]}</Td>
+                            {myLikesTemplate[currentCategory]?.typingFields.map((fieldName) => (
+                              <Td key={fieldName}>{like[fieldName]}</Td>
+                            ))}
+                            {myLikesTemplate[currentCategory]?.selectingFieldsAndOptions
+                              ? Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).map(
+                                  (fieldName, index) => <Td key={index}>{like[fieldName]}</Td>
+                                )
+                              : null}
+                            <DeleteTd onClick={(e) => onDelete(like)}>
+                              <DeleteButton>×</DeleteButton>
+                            </DeleteTd>
+                          </Tr>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </Tbody>
+                )}
+              </Droppable>
+            </TableArea>
+            {updateOne !== "" ? <UpdateModal like={updateOne} modalClose={onModalOffClick} /> : null}
+          </DragDropContext>
+        </TableWrapper>
+      )}
+    </>
   );
 }
 

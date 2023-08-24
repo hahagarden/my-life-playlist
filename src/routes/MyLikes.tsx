@@ -1,10 +1,8 @@
 import styled from "styled-components";
-import { useRecoilValue, useRecoilState } from "recoil";
-import { useEffect, useState } from "react";
-import { doc, onSnapshot } from "firebase/firestore";
+import { useRecoilValue } from "recoil";
+import { useState } from "react";
 
-import { dbService } from "../fbase";
-import { loggedInUserAtom, categoryTemplateAtom } from "../atom";
+import { categoryTemplateAtom } from "../atom";
 import CategoryCard from "../components/CategoryCard";
 import AddCategoryModal from "../components/AddCategoryModal";
 import { ReactComponent as ArrowLeft } from "../assets/arrow-left.svg";
@@ -126,8 +124,7 @@ const CategoryCards = styled.div`
 
 export default function MyLikes() {
   const CARDS_PER_PAGE = 5;
-  const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const [categoryTemplate, setCategoryTemplate] = useRecoilState(categoryTemplateAtom);
+  const categoryTemplate = useRecoilValue(categoryTemplateAtom);
   const [slideIndex, setSlideIndex] = useState(0);
   const templates = Object.keys(categoryTemplate).sort(
     (a, b) => categoryTemplate[a].createdAt - categoryTemplate[b].createdAt
@@ -140,15 +137,6 @@ export default function MyLikes() {
     { name: templates[4], imgUrl: imgSrc[4] },
     ...templates.slice(CARDS_PER_PAGE).map((name, index) => ({ name, imgUrl: imgSrc[(index + CARDS_PER_PAGE) % 10] })),
   ];
-
-  console.log(templateSlide);
-
-  useEffect(() => {
-    onSnapshot(doc(dbService, "MyLikes_template", `template_${loggedInUser?.uid}`), (doc) => {
-      const templateDB = { ...doc.data() };
-      setCategoryTemplate(templateDB);
-    });
-  }, []);
 
   const [isModalOn, setIsModalOn] = useState(false);
   const onModalOnClick = () => {
