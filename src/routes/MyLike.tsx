@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { useEffect, useState } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { Routes, Route, Link, useParams, useLocation } from "react-router-dom";
 import { onSnapshot, query, collection, where, doc } from "firebase/firestore";
 
@@ -80,7 +80,7 @@ function MyLike() {
   const currentCategory = category ?? "";
   const [isModalOn, setIsModalOn] = useState(false);
   const [rareLikes, setRareLikes] = useState<ILike[]>([]);
-  const [likes, setLikes] = useRecoilState(likesAtom);
+  const setLikes = useSetRecoilState(likesAtom);
   const [ranking, setRanking] = useRecoilState(likesRankingAtom);
   const { pathname } = useLocation();
 
@@ -94,6 +94,7 @@ function MyLike() {
 
   useEffect(() => {
     const q = query(collection(dbService, currentCategory), where("creatorId", "==", loggedInUser?.uid));
+
     onSnapshot(q, (querySnapshot) => {
       const likesDB = [] as ILike[];
       querySnapshot.forEach((doc) => {
@@ -101,26 +102,17 @@ function MyLike() {
       });
       setRareLikes(likesDB);
     });
-    console.log("useEffect&snapshot rendered.");
-  }, [currentCategory]);
 
-  useEffect(() => {
     onSnapshot(doc(dbService, currentCategory, `ranking_${loggedInUser?.uid}`), (doc) => {
       setRanking({ ...doc.data() });
     });
-  }, [currentCategory]);
+  }, [currentCategory, loggedInUser?.uid, setRanking]);
 
   useEffect(() => {
-    const orderedLikes = rareLikes.slice();
-    orderedLikes.sort((a, b) => ranking[a.id] - ranking[b.id]);
-    setLikes(orderedLikes);
-  }, [rareLikes]);
-
-  useEffect(() => {
-    const orderedLikes = likes.slice();
-    orderedLikes.sort((a, b) => ranking[a.id] - ranking[b.id]);
-    setLikes(orderedLikes);
-  }, [ranking]);
+    const orderedRareLikes = rareLikes.slice();
+    orderedRareLikes.sort((a, b) => ranking[a.id] - ranking[b.id]);
+    setLikes(orderedRareLikes);
+  }, [ranking, rareLikes, setLikes]);
 
   return (
     <>
