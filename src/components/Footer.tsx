@@ -1,5 +1,9 @@
 import styled from "styled-components";
 
+export default function Footer() {
+  return <FooterContainer>&copy; hahagarden 2023</FooterContainer>;
+}
+
 const FooterContainer = styled.footer`
   position: fixed;
   bottom: 0;
@@ -14,7 +18,3 @@ const FooterContainer = styled.footer`
   font-size: 0.8rem;
   font-weight: 200;
 `;
-
-export default function Footer() {
-  return <FooterContainer>&copy; hahagarden 2023</FooterContainer>;
-}

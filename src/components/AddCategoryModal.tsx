@@ -9,6 +9,199 @@ import { dbService } from "../fbase";
 import { loggedInUserAtom, categoryTemplateAtom } from "../atom";
 import { ERROR_CATEGORY_DUPLICATE, ERROR_FIELD_DUPLICATE } from "../errors";
 
+interface IAddCategoryForm {
+  categoryName: string;
+  [inputName: string]: string;
+}
+
+interface IAddCategoryModalProps {
+  onModalOffClick: () => void;
+}
+
+function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
+  const loggedInUser = useRecoilValue(loggedInUserAtom);
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+    reset,
+  } = useForm<IAddCategoryForm>();
+  const categoryTemplate = useRecoilValue(categoryTemplateAtom);
+
+  interface ISelectingOptions {
+    [selectingFieldId: string]: string[];
+  }
+  const [options, setOptions] = useState<ISelectingOptions>({});
+
+  const addCategorySubmit = async (data: IAddCategoryForm) => {
+    if (categoryTemplate[data.categoryName])
+      return setError("categoryName", { message: ERROR_CATEGORY_DUPLICATE }, { shouldFocus: true });
+
+    const typingFields: string[] = [];
+    const selectingFieldsAndOptions: { [selectingField: string]: string[] } = {};
+    Object.keys(data).forEach((inputName) => {
+      if (inputName.includes("typingField")) typingFields.push(data[inputName]);
+      else if (inputName.includes("selectingField")) {
+        const selectingFieldID = inputName.slice(15);
+        selectingFieldsAndOptions[data[inputName]] = options[selectingFieldID];
+      }
+    });
+
+    const fieldnames = typingFields.concat(Object.keys(selectingFieldsAndOptions));
+    if (fieldnames.length !== fieldnames.filter((fieldname, index) => fieldnames.indexOf(fieldname) === index).length)
+      return setError("categoryName", { message: ERROR_FIELD_DUPLICATE }, { shouldFocus: true });
+
+    const newCategory = {
+      typingFields,
+      selectingFieldsAndOptions,
+      createdAt: Date.now(),
+    };
+
+    try {
+      await setDoc(
+        doc(dbService, "MyLikes_template", `template_${loggedInUser?.uid}`),
+        { [data.categoryName]: newCategory },
+        { merge: true }
+      ); //add ranking_uid document
+
+      const defaultValueAfterAdd: { [key: string]: string } = {};
+      Object.keys(data).forEach((inputName) => {
+        defaultValueAfterAdd[inputName] = "";
+      });
+      reset(defaultValueAfterAdd);
+      setOptions({});
+    } catch (e) {
+      console.error("Error adding document", e);
+    }
+  };
+
+  const [addTemplateInput, setAddTemplateInput] = useState([nanoid().slice(0, 10)]);
+  const addTemplateInputClick = () => {
+    setAddTemplateInput((prev) => [...prev, nanoid().slice(0, 10)]);
+  };
+  const deleteTemplateInputClick = (id: string) => {
+    setAddTemplateInput((current) => {
+      const copyArray = [...current];
+      copyArray.splice(copyArray.indexOf(id), 1);
+      return copyArray;
+    });
+  };
+
+  const [addTemplateSelectingInput, setAddTemplateSelectingInput] = useState([nanoid().slice(0, 10)]);
+  const addTemplateSelectingInputClick = () => {
+    setAddTemplateSelectingInput((prev) => [...prev, nanoid().slice(0, 10)]);
+  };
+  const deleteTemplateSelectingInputClick = (id: string) => {
+    setAddTemplateSelectingInput((current) => {
+      const copyArray = [...current];
+      copyArray.splice(copyArray.indexOf(id), 1);
+      return copyArray;
+    });
+  };
+
+  const onOptionInputChange = (id: string, event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.value[event.target.value.length - 1] === ",") {
+      const newOptions = Object.assign({}, options);
+      const newOption = event.target.value.slice(0, event.target.value.length - 1);
+
+      if (!newOptions[id]) newOptions[id] = [newOption];
+      else if (newOptions[id].indexOf(newOption) !== -1) return;
+      else newOptions[id] = [...newOptions[id], newOption];
+
+      setOptions(newOptions);
+      event.target.value = "";
+    }
+  };
+  const onOptionClick = (id: string, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    const newOptions = Object.assign({}, options);
+    newOptions[id].splice(newOptions[id].indexOf(event.currentTarget.innerText), 1);
+    setOptions(newOptions);
+  };
+
+  return (
+    <>
+      <ModalBackground onClick={onModalOffClick}>
+        <ModalWindow onClick={(event) => event.stopPropagation()}>
+          <Form onSubmit={handleSubmit(addCategorySubmit)}>
+            <Title>
+              <TemplateHeaderInput
+                id="categoryName"
+                placeholder="category name"
+                autoComplete="off"
+                {...register("categoryName", { required: true })}
+              ></TemplateHeaderInput>
+              <ErrorMessage>{errors?.categoryName?.message}</ErrorMessage>
+            </Title>
+            <CloseButton onClick={onModalOffClick}>×</CloseButton>
+
+            {addTemplateInput.map((id) => {
+              return (
+                <InputLine key={id}>
+                  <TemplateInput
+                    placeholder="field name"
+                    autoComplete="off"
+                    {...register(`typingField_${id}`, {
+                      required: true,
+                      pattern: /^[a-z0-9가-힣]+$/i,
+                    })}
+                  ></TemplateInput>
+                  <AddButton type="button" onClick={addTemplateInputClick}>
+                    ＋
+                  </AddButton>
+                  <AddButton type="button" onClick={() => deleteTemplateInputClick(id)}>
+                    －
+                  </AddButton>
+                </InputLine>
+              );
+            })}
+
+            {addTemplateSelectingInput.map((id) => {
+              return (
+                <InputLine key={id}>
+                  <TemplateInput
+                    placeholder="field name"
+                    autoComplete="off"
+                    {...register(`selectingField_${id}`, { pattern: /^[a-z0-9가-힣]+$/i })}
+                  ></TemplateInput>
+
+                  <TemplateInputBox>
+                    <TemplateInput
+                      placeholder="option with comma"
+                      id="selectOptions"
+                      autoComplete="off"
+                      {...register(`selectOptions_${id}`, {
+                        onChange: (event) => onOptionInputChange(id, event),
+                      })}
+                    ></TemplateInput>
+                    <OptionsBox>
+                      {options[id]?.map((option) => (
+                        <OptionTag key={option} onClick={(event) => onOptionClick(id, event)}>
+                          {option}
+                        </OptionTag>
+                      ))}
+                    </OptionsBox>
+                  </TemplateInputBox>
+                  <AddButton type="button" onClick={addTemplateSelectingInputClick}>
+                    ＋
+                  </AddButton>
+                  <AddButton type="button" onClick={() => deleteTemplateSelectingInputClick(id)}>
+                    －
+                  </AddButton>
+                </InputLine>
+              );
+            })}
+
+            <Button>make category</Button>
+          </Form>
+        </ModalWindow>
+      </ModalBackground>
+    </>
+  );
+}
+
+export default AddCategoryModal;
+
 const animation_show = keyframes`
   from{
     opacity:0%;
@@ -213,195 +406,3 @@ const ErrorMessage = styled.p`
   left: 50%;
   transform: translateX(-50%);
 `;
-
-interface IAddCategoryForm {
-  categoryName: string;
-  [inputName: string]: string;
-}
-
-interface IAddCategoryModalProps {
-  onModalOffClick: () => void;
-}
-
-function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
-  const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const {
-    register,
-    handleSubmit,
-    setError,
-    formState: { errors },
-    reset,
-  } = useForm<IAddCategoryForm>();
-  const categoryTemplate = useRecoilValue(categoryTemplateAtom);
-
-  interface ISelectingOptions {
-    [selectingFieldId: string]: string[];
-  }
-  const [options, setOptions] = useState<ISelectingOptions>({});
-
-  const addCategorySubmit = async (data: IAddCategoryForm) => {
-    if (categoryTemplate[data.categoryName]) return setError("categoryName", { message: ERROR_CATEGORY_DUPLICATE }, { shouldFocus: true });
-
-    const typingFields: string[] = [];
-    const selectingFieldsAndOptions: { [selectingField: string]: string[] } = {};
-    Object.keys(data).forEach((inputName) => {
-      if (inputName.includes("typingField")) typingFields.push(data[inputName]);
-      else if (inputName.includes("selectingField")) {
-        const selectingFieldID = inputName.slice(15);
-        selectingFieldsAndOptions[data[inputName]] = options[selectingFieldID];
-      }
-    });
-
-    const fieldnames = typingFields.concat(Object.keys(selectingFieldsAndOptions));
-    if (fieldnames.length !== fieldnames.filter((fieldname, index) => fieldnames.indexOf(fieldname) === index).length)
-      return setError("categoryName", { message: ERROR_FIELD_DUPLICATE }, { shouldFocus: true });
-
-    const newCategory = {
-      typingFields,
-      selectingFieldsAndOptions,
-      createdAt: Date.now(),
-    };
-
-    try {
-      await setDoc(
-        doc(dbService, "MyLikes_template", `template_${loggedInUser?.uid}`),
-        { [data.categoryName]: newCategory },
-        { merge: true }
-      ); //add ranking_uid document
-
-      const defaultValueAfterAdd: { [key: string]: string } = {};
-      Object.keys(data).forEach((inputName) => {
-        defaultValueAfterAdd[inputName] = "";
-      });
-      reset(defaultValueAfterAdd);
-      setOptions({});
-    } catch (e) {
-      console.error("Error adding document", e);
-    }
-  };
-
-  const [addTemplateInput, setAddTemplateInput] = useState([nanoid().slice(0, 10)]);
-  const addTemplateInputClick = () => {
-    setAddTemplateInput((prev) => [...prev, nanoid().slice(0, 10)]);
-  };
-  const deleteTemplateInputClick = (id: string) => {
-    setAddTemplateInput((current) => {
-      const copyArray = [...current];
-      copyArray.splice(copyArray.indexOf(id), 1);
-      return copyArray;
-    });
-  };
-
-  const [addTemplateSelectingInput, setAddTemplateSelectingInput] = useState([nanoid().slice(0, 10)]);
-  const addTemplateSelectingInputClick = () => {
-    setAddTemplateSelectingInput((prev) => [...prev, nanoid().slice(0, 10)]);
-  };
-  const deleteTemplateSelectingInputClick = (id: string) => {
-    setAddTemplateSelectingInput((current) => {
-      const copyArray = [...current];
-      copyArray.splice(copyArray.indexOf(id), 1);
-      return copyArray;
-    });
-  };
-
-  const onOptionInputChange = (id: string, event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.value[event.target.value.length - 1] === ",") {
-      const newOptions = Object.assign({}, options);
-      const newOption = event.target.value.slice(0, event.target.value.length - 1);
-
-      if (!newOptions[id]) newOptions[id] = [newOption];
-      else if (newOptions[id].indexOf(newOption) !== -1) return;
-      else newOptions[id] = [...newOptions[id], newOption];
-
-      setOptions(newOptions);
-      event.target.value = "";
-    }
-  };
-  const onOptionClick = (id: string, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    const newOptions = Object.assign({}, options);
-    newOptions[id].splice(newOptions[id].indexOf(event.currentTarget.innerText), 1);
-    setOptions(newOptions);
-  };
-
-  return (
-    <>
-      <ModalBackground onClick={onModalOffClick}>
-        <ModalWindow onClick={(event) => event.stopPropagation()}>
-          <Form onSubmit={handleSubmit(addCategorySubmit)}>
-            <Title>
-              <TemplateHeaderInput
-                id="categoryName"
-                placeholder="category name"
-                autoComplete="off"
-                {...register("categoryName", { required: true })}
-              ></TemplateHeaderInput>
-              <ErrorMessage>{errors?.categoryName?.message}</ErrorMessage>
-            </Title>
-            <CloseButton onClick={onModalOffClick}>×</CloseButton>
-
-            {addTemplateInput.map((id) => {
-              return (
-                <InputLine key={id}>
-                  <TemplateInput
-                    placeholder="field name"
-                    autoComplete="off"
-                    {...register(`typingField_${id}`, {
-                      required: true,
-                      pattern: /^[a-z0-9가-힣]+$/i,
-                    })}
-                  ></TemplateInput>
-                  <AddButton type="button" onClick={addTemplateInputClick}>
-                    ＋
-                  </AddButton>
-                  <AddButton type="button" onClick={() => deleteTemplateInputClick(id)}>
-                    －
-                  </AddButton>
-                </InputLine>
-              );
-            })}
-
-            {addTemplateSelectingInput.map((id) => {
-              return (
-                <InputLine key={id}>
-                  <TemplateInput
-                    placeholder="field name"
-                    autoComplete="off"
-                    {...register(`selectingField_${id}`, { pattern: /^[a-z0-9가-힣]+$/i })}
-                  ></TemplateInput>
-
-                  <TemplateInputBox>
-                    <TemplateInput
-                      placeholder="option with comma"
-                      id="selectOptions"
-                      autoComplete="off"
-                      {...register(`selectOptions_${id}`, {
-                        onChange: (event) => onOptionInputChange(id, event),
-                      })}
-                    ></TemplateInput>
-                    <OptionsBox>
-                      {options[id]?.map((option) => (
-                        <OptionTag key={option} onClick={(event) => onOptionClick(id, event)}>
-                          {option}
-                        </OptionTag>
-                      ))}
-                    </OptionsBox>
-                  </TemplateInputBox>
-                  <AddButton type="button" onClick={addTemplateSelectingInputClick}>
-                    ＋
-                  </AddButton>
-                  <AddButton type="button" onClick={() => deleteTemplateSelectingInputClick(id)}>
-                    －
-                  </AddButton>
-                </InputLine>
-              );
-            })}
-
-            <Button>make category</Button>
-          </Form>
-        </ModalWindow>
-      </ModalBackground>
-    </>
-  );
-}
-
-export default AddCategoryModal;

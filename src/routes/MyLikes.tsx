@@ -21,6 +21,67 @@ const imgSrc: { [key: number]: any } = {
   0: `${process.env.PUBLIC_URL}/img/img0.jpg`,
 };
 
+export default function MyLikes() {
+  const CARDS_PER_PAGE = 5;
+  const categoryTemplate = useRecoilValue(categoryTemplateAtom);
+  const [slideIndex, setSlideIndex] = useState(0);
+  const templates = Object.keys(categoryTemplate).sort(
+    (a, b) => categoryTemplate[a].createdAt - categoryTemplate[b].createdAt
+  );
+  const templateSlide = [
+    { name: templates[3], imgUrl: imgSrc[3] },
+    { name: templates[1], imgUrl: imgSrc[1] },
+    { name: templates[0], imgUrl: imgSrc[0] },
+    { name: templates[2], imgUrl: imgSrc[2] },
+    { name: templates[4], imgUrl: imgSrc[4] },
+    ...templates.slice(CARDS_PER_PAGE).map((name, index) => ({ name, imgUrl: imgSrc[(index + CARDS_PER_PAGE) % 10] })),
+  ];
+
+  const [isModalOn, setIsModalOn] = useState(false);
+  const onModalOnClick = () => {
+    setIsModalOn(true);
+  };
+  const onModalOffClick = () => {
+    setIsModalOn(false);
+  };
+
+  const onIncreaseSlideClick = () => {
+    if (templates.length < CARDS_PER_PAGE) return;
+    setSlideIndex((prev) => {
+      if (prev === templates.length - CARDS_PER_PAGE) return prev;
+      return prev + 1;
+    });
+  };
+
+  const onDecreaseSlideClick = () => {
+    if (templates.length < CARDS_PER_PAGE) return;
+    setSlideIndex((prev) => {
+      if (prev === 0) return prev;
+      return prev - 1;
+    });
+  };
+
+  return (
+    <MyLikesWrapper>
+      <AddButton onClick={onModalOnClick}>add</AddButton>
+      <ScrollButton onClick={onDecreaseSlideClick}>
+        <ArrowLeft />
+      </ScrollButton>
+      <CategoryCards>
+        {templateSlide.slice(slideIndex, slideIndex + CARDS_PER_PAGE).map((template, index) => (
+          <CategoryCard nth={index + 1} key={index + 1} imgSrc={template.imgUrl}>
+            {template.name}
+          </CategoryCard>
+        ))}
+      </CategoryCards>
+      <ScrollButton onClick={onIncreaseSlideClick}>
+        <ArrowRight />
+      </ScrollButton>
+      {isModalOn && <AddCategoryModal onModalOffClick={onModalOffClick} />}
+    </MyLikesWrapper>
+  );
+}
+
 const MyLikesWrapper = styled.div`
   width: 100vw;
   min-width: 800px;
@@ -121,64 +182,3 @@ const CategoryCards = styled.div`
     transform: rotateY(-80deg);
   }
 `;
-
-export default function MyLikes() {
-  const CARDS_PER_PAGE = 5;
-  const categoryTemplate = useRecoilValue(categoryTemplateAtom);
-  const [slideIndex, setSlideIndex] = useState(0);
-  const templates = Object.keys(categoryTemplate).sort(
-    (a, b) => categoryTemplate[a].createdAt - categoryTemplate[b].createdAt
-  );
-  const templateSlide = [
-    { name: templates[3], imgUrl: imgSrc[3] },
-    { name: templates[1], imgUrl: imgSrc[1] },
-    { name: templates[0], imgUrl: imgSrc[0] },
-    { name: templates[2], imgUrl: imgSrc[2] },
-    { name: templates[4], imgUrl: imgSrc[4] },
-    ...templates.slice(CARDS_PER_PAGE).map((name, index) => ({ name, imgUrl: imgSrc[(index + CARDS_PER_PAGE) % 10] })),
-  ];
-
-  const [isModalOn, setIsModalOn] = useState(false);
-  const onModalOnClick = () => {
-    setIsModalOn(true);
-  };
-  const onModalOffClick = () => {
-    setIsModalOn(false);
-  };
-
-  const onIncreaseSlideClick = () => {
-    if (templates.length < CARDS_PER_PAGE) return;
-    setSlideIndex((prev) => {
-      if (prev === templates.length - CARDS_PER_PAGE) return prev;
-      return prev + 1;
-    });
-  };
-
-  const onDecreaseSlideClick = () => {
-    if (templates.length < CARDS_PER_PAGE) return;
-    setSlideIndex((prev) => {
-      if (prev === 0) return prev;
-      return prev - 1;
-    });
-  };
-
-  return (
-    <MyLikesWrapper>
-      <AddButton onClick={onModalOnClick}>add</AddButton>
-      <ScrollButton onClick={onDecreaseSlideClick}>
-        <ArrowLeft />
-      </ScrollButton>
-      <CategoryCards>
-        {templateSlide.slice(slideIndex, slideIndex + CARDS_PER_PAGE).map((template, index) => (
-          <CategoryCard nth={index + 1} key={index + 1} imgSrc={template.imgUrl}>
-            {template.name}
-          </CategoryCard>
-        ))}
-      </CategoryCards>
-      <ScrollButton onClick={onIncreaseSlideClick}>
-        <ArrowRight />
-      </ScrollButton>
-      {isModalOn && <AddCategoryModal onModalOffClick={onModalOffClick} />}
-    </MyLikesWrapper>
-  );
-}

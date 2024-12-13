@@ -4,6 +4,28 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { authService } from "../fbase";
 
+export default function Header() {
+  const navigate = useNavigate();
+
+  const onLogOutClick = () => {
+    if (window.confirm("로그아웃 하시겠습니까?"))
+      signOut(authService)
+        .then(() => {
+          alert("로그아웃되었습니다.");
+          navigate("/");
+        })
+        .catch();
+  };
+
+  return (
+    <HeaderContainer>
+      <Title to="/">my life playlist</Title>
+      <Username>hahagarden</Username>
+      <Logout onClick={onLogOutClick}>logout</Logout>
+    </HeaderContainer>
+  );
+}
+
 const HeaderContainer = styled.header`
   position: fixed;
   top: 0;
@@ -35,25 +57,3 @@ const Logout = styled.button`
   background-color: transparent;
   cursor: pointer;
 `;
-
-export default function Header() {
-  const navigate = useNavigate();
-
-  const onLogOutClick = () => {
-    if (window.confirm("로그아웃 하시겠습니까?"))
-      signOut(authService)
-        .then(() => {
-          alert("로그아웃되었습니다.");
-          navigate("/");
-        })
-        .catch();
-  };
-
-  return (
-    <HeaderContainer>
-      <Title to="/">my life playlist</Title>
-      <Username>hahagarden</Username>
-      <Logout onClick={onLogOutClick}>logout</Logout>
-    </HeaderContainer>
-  );
-}

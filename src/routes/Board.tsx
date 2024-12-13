@@ -7,6 +7,43 @@ import { useRecoilValue } from "recoil";
 import { categoryTemplateAtom } from "../atom";
 import PaintBoard from "../components/PaintBoard";
 
+function Board() {
+  const { category } = useParams();
+  const currentCategory = category ?? "";
+  const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
+  const [currentBoard, setCurrentBoard] = useState<string>(
+    Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions)[0]
+  );
+  const boardClick = (attr: string) => {
+    setCurrentBoard(attr);
+  };
+  const onDragEnd = (info: DropResult) => {
+    console.log(info);
+  };
+  return (
+    <BoardWrapper>
+      <Categories>
+        {Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).map((fieldName) => (
+          <Button key={fieldName} onClick={() => boardClick(fieldName)}>
+            {fieldName}
+          </Button>
+        ))}
+      </Categories>
+      {currentBoard ? (
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Boards>
+            {myLikesTemplate[currentCategory].selectingFieldsAndOptions[currentBoard].map((option, index) => (
+              <PaintBoard key={index} currentBoard={currentBoard} boardId={option} />
+            ))}
+          </Boards>
+        </DragDropContext>
+      ) : null}
+    </BoardWrapper>
+  );
+}
+
+export default Board;
+
 const animation_boards = keyframes`
   from{
     opacity:0%;
@@ -60,38 +97,3 @@ const Button = styled.button`
     font-weight: 600;
   }
 `;
-
-function Board() {
-  const { category } = useParams();
-  const currentCategory = category ?? "";
-  const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
-  const [currentBoard, setCurrentBoard] = useState<string>(Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions)[0]);
-  const boardClick = (attr: string) => {
-    setCurrentBoard(attr);
-  };
-  const onDragEnd = (info: DropResult) => {
-    console.log(info);
-  };
-  return (
-    <BoardWrapper>
-      <Categories>
-        {Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).map((fieldName) => (
-          <Button key={fieldName} onClick={() => boardClick(fieldName)}>
-            {fieldName}
-          </Button>
-        ))}
-      </Categories>
-      {currentBoard ? (
-        <DragDropContext onDragEnd={onDragEnd}>
-          <Boards>
-            {myLikesTemplate[currentCategory].selectingFieldsAndOptions[currentBoard].map((option, index) => (
-              <PaintBoard key={index} currentBoard={currentBoard} boardId={option} />
-            ))}
-          </Boards>
-        </DragDropContext>
-      ) : null}
-    </BoardWrapper>
-  );
-}
-
-export default Board;

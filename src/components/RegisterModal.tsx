@@ -7,6 +7,98 @@ import { useParams } from "react-router-dom";
 import { dbService } from "../fbase";
 import { loggedInUserAtom, likesAtom, categoryTemplateAtom } from "../atom";
 
+interface IStringsInObject {
+  [key: string]: string;
+}
+
+interface IModalProps {
+  onModalOffClick: () => void;
+}
+
+function Modal({ onModalOffClick }: IModalProps) {
+  const { category } = useParams();
+  const currentCategory = category ?? "";
+  const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
+  const loggedInUser = useRecoilValue(loggedInUserAtom);
+  const likes = useRecoilValue(likesAtom);
+  const { register, handleSubmit, reset } = useForm<IStringsInObject>();
+
+  const onSubmit = async (data: IStringsInObject) => {
+    const timestamp = Date.now();
+    const likeId = `${loggedInUser?.uid.slice(0, 5)}_${timestamp}`;
+    const baseInfo = {
+      ...data,
+      creatorId: loggedInUser?.uid,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      id: likeId,
+    };
+
+    try {
+      await setDoc(doc(dbService, currentCategory, likeId), baseInfo);
+      await setDoc(
+        doc(dbService, currentCategory, `ranking_${loggedInUser?.uid}`),
+        { [likeId]: likes.length + 1 },
+        { merge: true }
+      ); //add ranking_uid document
+    } catch (e) {
+      console.error("Error adding document", e);
+    }
+
+    const defaultValueAfterRegister: IStringsInObject = {};
+    myLikesTemplate[currentCategory].typingFields.forEach((fieldName) => {
+      defaultValueAfterRegister[fieldName] = "";
+    });
+    Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).forEach((fieldName) => {
+      defaultValueAfterRegister[fieldName] = myLikesTemplate[currentCategory].selectingFieldsAndOptions[fieldName][0];
+    });
+    reset(defaultValueAfterRegister);
+  };
+
+  return (
+    <ModalBackground onClick={onModalOffClick}>
+      <ModalWindow onClick={(event) => event.stopPropagation()}>
+        <Title>
+          <TitleText>{category}</TitleText>
+        </Title>
+        <CloseButton onClick={onModalOffClick}>×</CloseButton>
+        <Form onSubmit={handleSubmit(onSubmit)}>
+          {myLikesTemplate[currentCategory]?.typingFields.map((fieldName) => (
+            <InputLine key={fieldName}>
+              <Label htmlFor="header">{fieldName}</Label>
+              <Input
+                id={fieldName}
+                placeholder={fieldName}
+                autoComplete="off"
+                {...register(fieldName, { required: true })}
+              />
+            </InputLine>
+          ))}
+          {myLikesTemplate[currentCategory]?.selectingFieldsAndOptions
+            ? Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).map((fieldName) => {
+                return (
+                  <InputLine key={fieldName}>
+                    <Label htmlFor={fieldName}>{fieldName}</Label>
+                    <Select id={fieldName} {...register(fieldName, { required: true })}>
+                      {myLikesTemplate[currentCategory].selectingFieldsAndOptions[fieldName].map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </Select>
+                  </InputLine>
+                );
+              })
+            : null}
+          <Button>add item</Button>
+        </Form>
+      </ModalWindow>
+    </ModalBackground>
+  );
+}
+
+export default Modal;
+
 const animation_show = keyframes`
   from{
     opacity:0%;
@@ -163,86 +255,3 @@ const Select = styled.select`
     display: none;
   }
 `;
-
-interface IStringsInObject {
-  [key: string]: string;
-}
-
-interface IModalProps {
-  onModalOffClick: () => void;
-}
-
-function Modal({ onModalOffClick }: IModalProps) {
-  const { category } = useParams();
-  const currentCategory = category ?? "";
-  const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
-  const loggedInUser = useRecoilValue(loggedInUserAtom);
-  const likes = useRecoilValue(likesAtom);
-  const { register, handleSubmit, reset } = useForm<IStringsInObject>();
-
-  const onSubmit = async (data: IStringsInObject) => {
-    const timestamp = Date.now();
-    const likeId = `${loggedInUser?.uid.slice(0, 5)}_${timestamp}`;
-    const baseInfo = {
-      ...data,
-      creatorId: loggedInUser?.uid,
-      createdAt: timestamp,
-      updatedAt: timestamp,
-      id: likeId,
-    };
-
-    try {
-      await setDoc(doc(dbService, currentCategory, likeId), baseInfo);
-      await setDoc(doc(dbService, currentCategory, `ranking_${loggedInUser?.uid}`), { [likeId]: likes.length + 1 }, { merge: true }); //add ranking_uid document
-    } catch (e) {
-      console.error("Error adding document", e);
-    }
-
-    const defaultValueAfterRegister: IStringsInObject = {};
-    myLikesTemplate[currentCategory].typingFields.forEach((fieldName) => {
-      defaultValueAfterRegister[fieldName] = "";
-    });
-    Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).forEach((fieldName) => {
-      defaultValueAfterRegister[fieldName] = myLikesTemplate[currentCategory].selectingFieldsAndOptions[fieldName][0];
-    });
-    reset(defaultValueAfterRegister);
-  };
-
-  return (
-    <ModalBackground onClick={onModalOffClick}>
-      <ModalWindow onClick={(event) => event.stopPropagation()}>
-        <Title>
-          <TitleText>{category}</TitleText>
-        </Title>
-        <CloseButton onClick={onModalOffClick}>×</CloseButton>
-        <Form onSubmit={handleSubmit(onSubmit)}>
-          {myLikesTemplate[currentCategory]?.typingFields.map((fieldName) => (
-            <InputLine key={fieldName}>
-              <Label htmlFor="header">{fieldName}</Label>
-              <Input id={fieldName} placeholder={fieldName} autoComplete="off" {...register(fieldName, { required: true })} />
-            </InputLine>
-          ))}
-          {myLikesTemplate[currentCategory]?.selectingFieldsAndOptions
-            ? Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).map((fieldName) => {
-                return (
-                  <InputLine key={fieldName}>
-                    <Label htmlFor={fieldName}>{fieldName}</Label>
-                    <Select id={fieldName} {...register(fieldName, { required: true })}>
-                      {myLikesTemplate[currentCategory].selectingFieldsAndOptions[fieldName].map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </Select>
-                  </InputLine>
-                );
-              })
-            : null}
-          <Button>add item</Button>
-        </Form>
-      </ModalWindow>
-    </ModalBackground>
-  );
-}
-
-export default Modal;

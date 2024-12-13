@@ -1,6 +1,21 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 
+export default function CategoryCard({ nth, children, imgSrc }: { nth: number; children: string; imgSrc: any }) {
+  return (
+    <Card
+      to={`/${children}`}
+      nth={nth}
+      onClick={(e) => {
+        if (!children) e.preventDefault();
+      }}
+    >
+      <CardImage>{children && <img src={imgSrc} />}</CardImage>
+      <CardText>{children}</CardText>
+    </Card>
+  );
+}
+
 const Card = styled(Link)<{ nth: number }>`
   background-color: rgba(255, 255, 255, 0.5);
   box-shadow: 0px 0px 4px 4px rgba(255, 255, 255, 0.1);
@@ -46,18 +61,3 @@ const CardText = styled.div`
   font-size: 30px;
   color: rgba(0, 0, 0, 0.7);
 `;
-
-export default function CategoryCard({ nth, children, imgSrc }: { nth: number; children: string; imgSrc: any }) {
-  return (
-    <Card
-      to={`/${children}`}
-      nth={nth}
-      onClick={(e) => {
-        if (!children) e.preventDefault();
-      }}
-    >
-      <CardImage>{children && <img src={imgSrc} />}</CardImage>
-      <CardText>{children}</CardText>
-    </Card>
-  );
-}

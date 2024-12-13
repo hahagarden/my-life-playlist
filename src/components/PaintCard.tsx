@@ -12,20 +12,6 @@ interface CardProps {
   onModalOnDbClick: (id: string) => void;
 }
 
-const DraggableCard = styled.div<{ like: ILike }>`
-  box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
-  border-radius: 20px;
-  text-align: center;
-  font-size: 18px;
-  padding: 10px;
-  margin: 10px;
-  transition: 0.2s;
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.8);
-  }
-`;
-
 function PaintCard({ like, index, onModalOnDbClick }: CardProps) {
   const { category } = useParams();
   const currentCategory = category ?? "";
@@ -49,3 +35,17 @@ function PaintCard({ like, index, onModalOnDbClick }: CardProps) {
 }
 
 export default PaintCard;
+
+const DraggableCard = styled.div<{ like: ILike }>`
+  box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.2);
+  border-radius: 20px;
+  text-align: center;
+  font-size: 18px;
+  padding: 10px;
+  margin: 10px;
+  transition: 0.2s;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+`;

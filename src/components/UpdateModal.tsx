@@ -8,6 +8,90 @@ import { useParams } from "react-router-dom";
 import { dbService } from "../fbase";
 import { ILike, categoryTemplateAtom } from "../atom";
 
+interface IUpdateModalProps {
+  like: ILike;
+  modalClose: () => void;
+}
+
+interface IForm {
+  [key: string]: string | number;
+}
+
+function UpdateModal({ like, modalClose }: IUpdateModalProps) {
+  const { category } = useParams();
+  const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
+  const currentCategory = category ?? "";
+  const { register, handleSubmit, setValue } = useForm<IForm>();
+  useEffect(() => {
+    myLikesTemplate[currentCategory]?.typingFields.forEach((fieldName) => setValue(fieldName, like[fieldName]));
+    Object.keys(myLikesTemplate[currentCategory]?.selectingFieldsAndOptions).forEach((fieldName) =>
+      setValue(fieldName, like[fieldName])
+    );
+  }, []);
+
+  const onSubmit = async (data: IForm) => {
+    if (!myLikesTemplate[currentCategory]?.typingFields.filter((fieldName) => like[fieldName] !== data[fieldName])) {
+      alert("there is no change.");
+      return;
+    } else if (window.confirm("are you sure updating data?")) {
+      const updatingSong = doc(dbService, currentCategory, like.id);
+      let updatedLike: { [key: string]: string | number } = {};
+      myLikesTemplate[currentCategory]?.typingFields.forEach((fieldName) => (updatedLike[fieldName] = data[fieldName]));
+      Object.keys(myLikesTemplate[currentCategory]?.selectingFieldsAndOptions).forEach(
+        (fieldName) => (updatedLike[fieldName] = data[fieldName])
+      );
+      await updateDoc(updatingSong, {
+        ...updatedLike,
+        updatedAt: Date.now(),
+      });
+      alert("updated.");
+    }
+  };
+
+  return (
+    <ModalBackground onClick={modalClose}>
+      <ModalWindow onClick={(event) => event.stopPropagation()}>
+        <Title>
+          <TitleText>{category}</TitleText>
+        </Title>
+        <CloseButton onClick={modalClose}>×</CloseButton>
+        <Form onSubmit={handleSubmit(onSubmit)}>
+          {myLikesTemplate[currentCategory]?.typingFields.map((fieldName) => (
+            <InputLine key={fieldName}>
+              <Label htmlFor={fieldName}>{fieldName}</Label>
+              <Input
+                id={fieldName}
+                placeholder={fieldName}
+                autoComplete="off"
+                {...register(fieldName, { required: true })}
+              />
+            </InputLine>
+          ))}
+          {myLikesTemplate[currentCategory]?.selectingFieldsAndOptions
+            ? Object.keys(myLikesTemplate[currentCategory]?.selectingFieldsAndOptions).map((fieldName) => {
+                return (
+                  <InputLine key={fieldName}>
+                    <Label htmlFor={fieldName}>{fieldName}</Label>
+                    <Select id={fieldName} {...register(fieldName, { required: true })}>
+                      {myLikesTemplate[currentCategory]?.selectingFieldsAndOptions[fieldName].map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </Select>
+                  </InputLine>
+                );
+              })
+            : null}
+          <Button>update item</Button>
+        </Form>
+      </ModalWindow>
+    </ModalBackground>
+  );
+}
+
+export default UpdateModal;
+
 const animation_show = keyframes`
   from{
     opacity:0%;
@@ -16,11 +100,6 @@ const animation_show = keyframes`
     opacity:100%;
   };
 `;
-
-interface IUpdateModalProps {
-  like: ILike;
-  modalClose: () => void;
-}
 
 const ModalBackground = styled.div`
   position: fixed;
@@ -169,75 +248,3 @@ const Select = styled.select`
     display: none;
   }
 `;
-
-interface IForm {
-  [key: string]: string | number;
-}
-
-function UpdateModal({ like, modalClose }: IUpdateModalProps) {
-  const { category } = useParams();
-  const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
-  const currentCategory = category ?? "";
-  const { register, handleSubmit, setValue } = useForm<IForm>();
-  useEffect(() => {
-    myLikesTemplate[currentCategory]?.typingFields.forEach((fieldName) => setValue(fieldName, like[fieldName]));
-    Object.keys(myLikesTemplate[currentCategory]?.selectingFieldsAndOptions).forEach((fieldName) => setValue(fieldName, like[fieldName]));
-  }, []);
-
-  const onSubmit = async (data: IForm) => {
-    if (!myLikesTemplate[currentCategory]?.typingFields.filter((fieldName) => like[fieldName] !== data[fieldName])) {
-      alert("there is no change.");
-      return;
-    } else if (window.confirm("are you sure updating data?")) {
-      const updatingSong = doc(dbService, currentCategory, like.id);
-      let updatedLike: { [key: string]: string | number } = {};
-      myLikesTemplate[currentCategory]?.typingFields.forEach((fieldName) => (updatedLike[fieldName] = data[fieldName]));
-      Object.keys(myLikesTemplate[currentCategory]?.selectingFieldsAndOptions).forEach(
-        (fieldName) => (updatedLike[fieldName] = data[fieldName])
-      );
-      await updateDoc(updatingSong, {
-        ...updatedLike,
-        updatedAt: Date.now(),
-      });
-      alert("updated.");
-    }
-  };
-
-  return (
-    <ModalBackground onClick={modalClose}>
-      <ModalWindow onClick={(event) => event.stopPropagation()}>
-        <Title>
-          <TitleText>{category}</TitleText>
-        </Title>
-        <CloseButton onClick={modalClose}>×</CloseButton>
-        <Form onSubmit={handleSubmit(onSubmit)}>
-          {myLikesTemplate[currentCategory]?.typingFields.map((fieldName) => (
-            <InputLine key={fieldName}>
-              <Label htmlFor={fieldName}>{fieldName}</Label>
-              <Input id={fieldName} placeholder={fieldName} autoComplete="off" {...register(fieldName, { required: true })} />
-            </InputLine>
-          ))}
-          {myLikesTemplate[currentCategory]?.selectingFieldsAndOptions
-            ? Object.keys(myLikesTemplate[currentCategory]?.selectingFieldsAndOptions).map((fieldName) => {
-                return (
-                  <InputLine key={fieldName}>
-                    <Label htmlFor={fieldName}>{fieldName}</Label>
-                    <Select id={fieldName} {...register(fieldName, { required: true })}>
-                      {myLikesTemplate[currentCategory]?.selectingFieldsAndOptions[fieldName].map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </Select>
-                  </InputLine>
-                );
-              })
-            : null}
-          <Button>update item</Button>
-        </Form>
-      </ModalWindow>
-    </ModalBackground>
-  );
-}
-
-export default UpdateModal;
