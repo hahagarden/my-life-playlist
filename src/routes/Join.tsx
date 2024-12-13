@@ -24,6 +24,7 @@ interface IJoinForm {
 
 export default function Join() {
   const navigator = useNavigate();
+
   const {
     register,
     handleSubmit,

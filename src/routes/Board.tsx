@@ -10,16 +10,20 @@ import PaintBoard from "../components/PaintBoard";
 function Board() {
   const { category } = useParams();
   const currentCategory = category ?? "";
+
   const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
   const [currentBoard, setCurrentBoard] = useState<string>(
     Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions)[0]
   );
+
   const boardClick = (attr: string) => {
     setCurrentBoard(attr);
   };
+
   const onDragEnd = (info: DropResult) => {
     console.log(info);
   };
+
   return (
     <BoardWrapper>
       <Categories>

@@ -18,8 +18,17 @@ interface IAddCategoryModalProps {
   onModalOffClick: () => void;
 }
 
+interface ISelectingOptions {
+  [selectingFieldId: string]: string[];
+}
+
 function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
   const loggedInUser = useRecoilValue(loggedInUserAtom);
+  const categoryTemplate = useRecoilValue(categoryTemplateAtom);
+  const [options, setOptions] = useState<ISelectingOptions>({});
+  const [addTemplateInput, setAddTemplateInput] = useState([nanoid().slice(0, 10)]);
+  const [addTemplateSelectingInput, setAddTemplateSelectingInput] = useState([nanoid().slice(0, 10)]);
+
   const {
     register,
     handleSubmit,
@@ -27,18 +36,13 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
     formState: { errors },
     reset,
   } = useForm<IAddCategoryForm>();
-  const categoryTemplate = useRecoilValue(categoryTemplateAtom);
-
-  interface ISelectingOptions {
-    [selectingFieldId: string]: string[];
-  }
-  const [options, setOptions] = useState<ISelectingOptions>({});
 
   const addCategorySubmit = async (data: IAddCategoryForm) => {
     if (categoryTemplate[data.categoryName])
       return setError("categoryName", { message: ERROR_CATEGORY_DUPLICATE }, { shouldFocus: true });
 
     const typingFields: string[] = [];
+
     const selectingFieldsAndOptions: { [selectingField: string]: string[] } = {};
     Object.keys(data).forEach((inputName) => {
       if (inputName.includes("typingField")) typingFields.push(data[inputName]);
@@ -76,10 +80,10 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
     }
   };
 
-  const [addTemplateInput, setAddTemplateInput] = useState([nanoid().slice(0, 10)]);
   const addTemplateInputClick = () => {
     setAddTemplateInput((prev) => [...prev, nanoid().slice(0, 10)]);
   };
+
   const deleteTemplateInputClick = (id: string) => {
     setAddTemplateInput((current) => {
       const copyArray = [...current];
@@ -88,10 +92,10 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
     });
   };
 
-  const [addTemplateSelectingInput, setAddTemplateSelectingInput] = useState([nanoid().slice(0, 10)]);
   const addTemplateSelectingInputClick = () => {
     setAddTemplateSelectingInput((prev) => [...prev, nanoid().slice(0, 10)]);
   };
+
   const deleteTemplateSelectingInputClick = (id: string) => {
     setAddTemplateSelectingInput((current) => {
       const copyArray = [...current];
@@ -113,6 +117,7 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
       event.target.value = "";
     }
   };
+
   const onOptionClick = (id: string, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const newOptions = Object.assign({}, options);
     newOptions[id].splice(newOptions[id].indexOf(event.currentTarget.innerText), 1);

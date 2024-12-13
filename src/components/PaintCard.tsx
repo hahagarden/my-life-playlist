@@ -15,6 +15,7 @@ interface CardProps {
 function PaintCard({ like, index, onModalOnDbClick }: CardProps) {
   const { category } = useParams();
   const currentCategory = category ?? "";
+
   const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
 
   return (

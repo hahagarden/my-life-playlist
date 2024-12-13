@@ -19,9 +19,12 @@ interface IForm {
 
 function UpdateModal({ like, modalClose }: IUpdateModalProps) {
   const { category } = useParams();
-  const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
   const currentCategory = category ?? "";
+
+  const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
+
   const { register, handleSubmit, setValue } = useForm<IForm>();
+
   useEffect(() => {
     myLikesTemplate[currentCategory]?.typingFields.forEach((fieldName) => setValue(fieldName, like[fieldName]));
     Object.keys(myLikesTemplate[currentCategory]?.selectingFieldsAndOptions).forEach((fieldName) =>

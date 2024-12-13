@@ -12,11 +12,13 @@ import UpdateModal from "../components/UpdateModal";
 function Table() {
   const { category } = useParams();
   const currentCategory = category ?? "";
+
   const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
   const loggedInUser = useRecoilValue(loggedInUserAtom);
   const ranking = useRecoilValue(likesRankingAtom);
   const likes = useRecoilValue(likesAtom);
   const [updateOne, setUpdateOne] = useState<ILike | "">("");
+
   const init = Object.keys(myLikesTemplate).length !== 0;
 
   const onModalOnDbClick = (id: string) => {

@@ -21,13 +21,17 @@ const imgSrc: { [key: number]: any } = {
   0: `${process.env.PUBLIC_URL}/img/img0.jpg`,
 };
 
+const CARDS_PER_PAGE = 5;
+
 export default function MyLikes() {
-  const CARDS_PER_PAGE = 5;
   const categoryTemplate = useRecoilValue(categoryTemplateAtom);
   const [slideIndex, setSlideIndex] = useState(0);
+  const [isModalOn, setIsModalOn] = useState(false);
+
   const templates = Object.keys(categoryTemplate).sort(
     (a, b) => categoryTemplate[a].createdAt - categoryTemplate[b].createdAt
   );
+
   const templateSlide = [
     { name: templates[3], imgUrl: imgSrc[3] },
     { name: templates[1], imgUrl: imgSrc[1] },
@@ -37,7 +41,6 @@ export default function MyLikes() {
     ...templates.slice(CARDS_PER_PAGE).map((name, index) => ({ name, imgUrl: imgSrc[(index + CARDS_PER_PAGE) % 10] })),
   ];
 
-  const [isModalOn, setIsModalOn] = useState(false);
   const onModalOnClick = () => {
     setIsModalOn(true);
   };

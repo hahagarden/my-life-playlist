@@ -18,9 +18,11 @@ interface IModalProps {
 function Modal({ onModalOffClick }: IModalProps) {
   const { category } = useParams();
   const currentCategory = category ?? "";
+
   const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
   const loggedInUser = useRecoilValue(loggedInUserAtom);
   const likes = useRecoilValue(likesAtom);
+
   const { register, handleSubmit, reset } = useForm<IStringsInObject>();
 
   const onSubmit = async (data: IStringsInObject) => {
@@ -46,12 +48,15 @@ function Modal({ onModalOffClick }: IModalProps) {
     }
 
     const defaultValueAfterRegister: IStringsInObject = {};
+
     myLikesTemplate[currentCategory].typingFields.forEach((fieldName) => {
       defaultValueAfterRegister[fieldName] = "";
     });
+
     Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).forEach((fieldName) => {
       defaultValueAfterRegister[fieldName] = myLikesTemplate[currentCategory].selectingFieldsAndOptions[fieldName][0];
     });
+
     reset(defaultValueAfterRegister);
   };
 

@@ -19,6 +19,7 @@ interface ILoginForm {
 
 export default function Login() {
   const navigator = useNavigate();
+
   const {
     register,
     handleSubmit,

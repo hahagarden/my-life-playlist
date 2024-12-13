@@ -13,14 +13,15 @@ import { ReactComponent as BoardIcon } from "../assets/board.svg";
 import { ReactComponent as TableIcon } from "../assets/table.svg";
 
 function MyLike() {
+  const { pathname } = useLocation();
   const { category } = useParams();
-  const loggedInUser = useRecoilValue(loggedInUserAtom);
   const currentCategory = category ?? "";
+
+  const loggedInUser = useRecoilValue(loggedInUserAtom);
   const [isModalOn, setIsModalOn] = useState(false);
   const [rareLikes, setRareLikes] = useState<ILike[]>([]);
   const setLikes = useSetRecoilState(likesAtom);
   const [ranking, setRanking] = useRecoilState(likesRankingAtom);
-  const { pathname } = useLocation();
 
   const onModalOnClick = () => {
     setIsModalOn(true);
