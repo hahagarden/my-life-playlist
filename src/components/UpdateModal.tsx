@@ -36,7 +36,7 @@ function UpdateModal({ like, modalClose }: IUpdateModalProps) {
     if (!myLikesTemplate[currentCategory]?.typingFields.filter((fieldName) => like[fieldName] !== data[fieldName])) {
       alert("there is no change.");
       return;
-    } else if (window.confirm("are you sure updating data?")) {
+    } else {
       const updatingSong = doc(dbService, currentCategory, like.id);
       let updatedLike: { [key: string]: string | number } = {};
       myLikesTemplate[currentCategory]?.typingFields.forEach((fieldName) => (updatedLike[fieldName] = data[fieldName]));
@@ -48,6 +48,7 @@ function UpdateModal({ like, modalClose }: IUpdateModalProps) {
         updatedAt: Date.now(),
       });
       alert("updated.");
+      modalClose();
     }
   };
 
