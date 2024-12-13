@@ -22,12 +22,17 @@ interface ISelectingOptions {
   [selectingFieldId: string]: string[];
 }
 
+// prefix
+const TYPING_FIELD = "type_";
+const SELECTING_FIELD = "select_";
+const SELECTING_FIELD_OPTION = "selectOptions_";
+
 function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
   const loggedInUser = useRecoilValue(loggedInUserAtom);
   const categoryTemplate = useRecoilValue(categoryTemplateAtom);
-  const [options, setOptions] = useState<ISelectingOptions>({});
-  const [addTemplateInput, setAddTemplateInput] = useState([nanoid().slice(0, 10)]);
-  const [addTemplateSelectingInput, setAddTemplateSelectingInput] = useState([nanoid().slice(0, 10)]);
+  const [typingFieldIds, setTypingFieldIds] = useState([nanoid().slice(0, 10)]);
+  const [selectingFieldIds, setSelectingFieldIds] = useState([nanoid().slice(0, 10)]);
+  const [selectingFieldOptions, setSelectingFieldOptions] = useState<ISelectingOptions>({});
 
   const {
     register,
@@ -37,18 +42,18 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
     reset,
   } = useForm<IAddCategoryForm>();
 
-  const addCategorySubmit = async (data: IAddCategoryForm) => {
-    if (categoryTemplate[data.categoryName])
+  const addCategorySubmit = async ({ categoryName, ...inputs }: IAddCategoryForm) => {
+    if (categoryTemplate[categoryName])
       return setError("categoryName", { message: ERROR_CATEGORY_DUPLICATE }, { shouldFocus: true });
 
     const typingFields: string[] = [];
-
     const selectingFieldsAndOptions: { [selectingField: string]: string[] } = {};
-    Object.keys(data).forEach((inputName) => {
-      if (inputName.includes("typingField")) typingFields.push(data[inputName]);
-      else if (inputName.includes("selectingField")) {
-        const selectingFieldID = inputName.slice(15);
-        selectingFieldsAndOptions[data[inputName]] = options[selectingFieldID];
+
+    Object.keys(inputs).forEach((inputName) => {
+      if (inputName.includes(TYPING_FIELD)) typingFields.push(inputs[inputName]);
+      else if (inputName.includes(SELECTING_FIELD)) {
+        const selectingFieldID = inputName.slice(SELECTING_FIELD.length);
+        selectingFieldsAndOptions[inputs[inputName]] = selectingFieldOptions[selectingFieldID];
       }
     });
 
@@ -65,27 +70,27 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
     try {
       await setDoc(
         doc(dbService, "MyLikes_template", `template_${loggedInUser?.uid}`),
-        { [data.categoryName]: newCategory },
+        { [categoryName]: newCategory },
         { merge: true }
       ); //add ranking_uid document
 
       const defaultValueAfterAdd: { [key: string]: string } = {};
-      Object.keys(data).forEach((inputName) => {
+      Object.keys(inputs).forEach((inputName) => {
         defaultValueAfterAdd[inputName] = "";
       });
       reset(defaultValueAfterAdd);
-      setOptions({});
+      setSelectingFieldOptions({});
     } catch (e) {
       console.error("Error adding document", e);
     }
   };
 
   const addTemplateInputClick = () => {
-    setAddTemplateInput((prev) => [...prev, nanoid().slice(0, 10)]);
+    setTypingFieldIds((prev) => [...prev, nanoid().slice(0, 10)]);
   };
 
   const deleteTemplateInputClick = (id: string) => {
-    setAddTemplateInput((current) => {
+    setTypingFieldIds((current) => {
       const copyArray = [...current];
       copyArray.splice(copyArray.indexOf(id), 1);
       return copyArray;
@@ -93,11 +98,11 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
   };
 
   const addTemplateSelectingInputClick = () => {
-    setAddTemplateSelectingInput((prev) => [...prev, nanoid().slice(0, 10)]);
+    setSelectingFieldIds((prev) => [...prev, nanoid().slice(0, 10)]);
   };
 
   const deleteTemplateSelectingInputClick = (id: string) => {
-    setAddTemplateSelectingInput((current) => {
+    setSelectingFieldIds((current) => {
       const copyArray = [...current];
       copyArray.splice(copyArray.indexOf(id), 1);
       return copyArray;
@@ -106,22 +111,22 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
 
   const onOptionInputChange = (id: string, event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.value[event.target.value.length - 1] === ",") {
-      const newOptions = Object.assign({}, options);
+      const newOptions = Object.assign({}, selectingFieldOptions);
       const newOption = event.target.value.slice(0, event.target.value.length - 1);
 
       if (!newOptions[id]) newOptions[id] = [newOption];
       else if (newOptions[id].indexOf(newOption) !== -1) return;
       else newOptions[id] = [...newOptions[id], newOption];
 
-      setOptions(newOptions);
+      setSelectingFieldOptions(newOptions);
       event.target.value = "";
     }
   };
 
   const onOptionClick = (id: string, event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    const newOptions = Object.assign({}, options);
+    const newOptions = Object.assign({}, selectingFieldOptions);
     newOptions[id].splice(newOptions[id].indexOf(event.currentTarget.innerText), 1);
-    setOptions(newOptions);
+    setSelectingFieldOptions(newOptions);
   };
 
   return (
@@ -140,13 +145,13 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
             </Title>
             <CloseButton onClick={onModalOffClick}>×</CloseButton>
 
-            {addTemplateInput.map((id) => {
+            {typingFieldIds.map((id) => {
               return (
                 <InputLine key={id}>
                   <TemplateInput
                     placeholder="field name"
                     autoComplete="off"
-                    {...register(`typingField_${id}`, {
+                    {...register(`${TYPING_FIELD}${id}`, {
                       required: true,
                       pattern: /^[a-z0-9가-힣]+$/i,
                     })}
@@ -161,26 +166,26 @@ function AddCategoryModal({ onModalOffClick }: IAddCategoryModalProps) {
               );
             })}
 
-            {addTemplateSelectingInput.map((id) => {
+            {selectingFieldIds.map((id) => {
               return (
                 <InputLine key={id}>
                   <TemplateInput
                     placeholder="field name"
                     autoComplete="off"
-                    {...register(`selectingField_${id}`, { pattern: /^[a-z0-9가-힣]+$/i })}
+                    {...register(`${SELECTING_FIELD}${id}`, { pattern: /^[a-z0-9가-힣]+$/i })}
                   ></TemplateInput>
 
                   <TemplateInputBox>
                     <TemplateInput
                       placeholder="option with comma"
-                      id="selectOptions"
+                      id={`selectOptions-${id}`}
                       autoComplete="off"
-                      {...register(`selectOptions_${id}`, {
+                      {...register(`${SELECTING_FIELD_OPTION}${id}`, {
                         onChange: (event) => onOptionInputChange(id, event),
                       })}
                     ></TemplateInput>
                     <OptionsBox>
-                      {options[id]?.map((option) => (
+                      {selectingFieldOptions[id]?.map((option) => (
                         <OptionTag key={option} onClick={(event) => onOptionClick(id, event)}>
                           {option}
                         </OptionTag>
