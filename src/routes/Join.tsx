@@ -14,6 +14,7 @@ import {
   ERROR_PASSWORD_MIN_LENGTH,
   ERROR_USERNAME_FORMAT,
 } from "../errors";
+import { FirebaseError } from "firebase/app";
 
 interface IJoinForm {
   email: string;
@@ -32,26 +33,27 @@ export default function Join() {
     formState: { errors },
   } = useForm<IJoinForm>();
 
-  const onSubmit = (data: IJoinForm) => {
+  const onSubmit = async (data: IJoinForm) => {
     if (data.pwConfirm !== data.pw)
       return setError("pwConfirm", { message: ERROR_PASSWORD_CONFIRM }, { shouldFocus: true });
 
-    createUserWithEmailAndPassword(authService, data.email, data.pw)
-      .then((userCredentail) => {
-        updateProfile(userCredentail.user, { displayName: data.username });
-        alert(`welcome ${data.email}!`);
-        navigator("/");
-      })
-      .catch((error) => {
-        console.log(error);
-        switch (error.code) {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(authService, data.email, data.pw);
+      await updateProfile(userCredential.user, { displayName: data.username });
+      alert(`welcome ${data.email}!`);
+      navigator("/");
+    } catch (e) {
+      console.error(e);
+
+      if (e instanceof FirebaseError)
+        switch (e.code) {
           case "auth/email-already-in-use":
             alert(ERROR_EMAIL_DUPLICATE);
             break;
           default:
             alert(ERROR_JOIN_FAILURE);
         }
-      });
+    }
   };
 
   return (

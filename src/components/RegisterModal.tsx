@@ -36,14 +36,16 @@ function Modal({ onModalOffClick }: IModalProps) {
     };
 
     try {
-      await setDoc(doc(dbService, category, likeId), baseInfo);
-      await setDoc(
-        doc(dbService, category, `ranking_${loggedInUser?.uid}`),
-        { [likeId]: likes.length + 1 },
-        { merge: true }
-      ); //add ranking_uid document
+      await Promise.all([
+        setDoc(doc(dbService, category, likeId), baseInfo),
+        setDoc(
+          doc(dbService, category, `ranking_${loggedInUser?.uid}`),
+          { [likeId]: likes.length + 1 },
+          { merge: true }
+        ),
+      ]);
     } catch (e) {
-      console.error("Error adding document", e);
+      console.error("doc 추가 중 오류 발생", e);
     }
 
     const defaultValueAfterRegister: IStringsInObject = {};

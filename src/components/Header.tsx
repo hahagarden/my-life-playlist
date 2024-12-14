@@ -11,14 +11,15 @@ export default function Header() {
 
   const loggedInUser = useRecoilValue(loggedInUserAtom);
 
-  const onLogOutClick = () => {
+  const onLogOutClick = async () => {
     if (window.confirm("로그아웃 하시겠습니까?"))
-      signOut(authService)
-        .then(() => {
-          alert("로그아웃되었습니다.");
-          navigate("/");
-        })
-        .catch();
+      try {
+        await signOut(authService);
+        alert("로그아웃되었습니다.");
+        navigate("/");
+      } catch (e) {
+        console.error("로그아웃 중 에러 발생", e);
+      }
   };
 
   return (

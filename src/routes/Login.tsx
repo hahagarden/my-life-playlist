@@ -1,7 +1,7 @@
 import { useNavigate, Link } from "react-router-dom";
 import styled from "styled-components";
 import { useForm } from "react-hook-form";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { authService } from "../fbase";
 import {
   ERROR_EMAIL_NOT_EXIST,
@@ -11,6 +11,7 @@ import {
   ERROR_PASSWORD_MIN_LENGTH,
   ERROR_WRONG_PASSWORD,
 } from "../errors";
+import { FirebaseError } from "firebase/app";
 
 interface ILoginForm {
   email: string;
@@ -26,16 +27,16 @@ export default function Login() {
     formState: { errors },
   } = useForm<ILoginForm>();
 
-  const onSubmit = (data: ILoginForm) => {
-    signInWithEmailAndPassword(authService, data.email, data.pw)
-      .then(() => {
-        alert(`welcome!`);
-        navigator("/");
-      })
-      .catch((error) => {
-        console.log(error);
-        const errorCode = error.code;
-        switch (errorCode) {
+  const onSubmit = async (data: ILoginForm) => {
+    try {
+      await signInWithEmailAndPassword(authService, data.email, data.pw);
+      alert(`welcome!`);
+      navigator("/");
+    } catch (e) {
+      console.error(e);
+
+      if (e instanceof FirebaseError)
+        switch (e.code) {
           case "auth/user-not-found":
             alert(ERROR_EMAIL_NOT_EXIST);
             break;
@@ -45,7 +46,7 @@ export default function Login() {
           default:
             alert(ERROR_LOGIN_FAILURE);
         }
-      });
+    }
   };
 
   return (
