@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { Link } from "react-router-dom";
 
 import { authService } from "../fbase";
@@ -37,7 +37,8 @@ export default function Join() {
       return setError("pwConfirm", { message: ERROR_PASSWORD_CONFIRM }, { shouldFocus: true });
 
     createUserWithEmailAndPassword(authService, data.email, data.pw)
-      .then(() => {
+      .then((userCredentail) => {
+        updateProfile(userCredentail.user, { displayName: data.username });
         alert(`welcome ${data.email}!`);
         navigator("/");
       })

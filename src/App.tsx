@@ -13,6 +13,7 @@ export interface ILoggedInUser {
   email: string | null;
   metadata: UserMetadata;
   uid: string;
+  username: string | null;
 }
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
           email: user.email,
           metadata: user.metadata,
           uid: user.uid,
+          username: user.displayName,
         }; // disable to set user(:User) to recoil atom.
         setLoggedInUser(loggedInUser);
       } else {

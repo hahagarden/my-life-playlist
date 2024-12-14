@@ -3,9 +3,13 @@ import { signOut } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
 
 import { authService } from "../fbase";
+import { useRecoilValue } from "recoil";
+import { loggedInUserAtom } from "../atom";
 
 export default function Header() {
   const navigate = useNavigate();
+
+  const loggedInUser = useRecoilValue(loggedInUserAtom);
 
   const onLogOutClick = () => {
     if (window.confirm("로그아웃 하시겠습니까?"))
@@ -20,7 +24,7 @@ export default function Header() {
   return (
     <HeaderContainer>
       <Title to="/">my life playlist</Title>
-      <Username>hahagarden</Username>
+      <Username>{loggedInUser?.username}</Username>
       <Logout onClick={onLogOutClick}>logout</Logout>
     </HeaderContainer>
   );
