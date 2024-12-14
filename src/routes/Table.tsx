@@ -10,8 +10,7 @@ import { loggedInUserAtom, ILike, likesRankingAtom, IRanking, likesAtom, categor
 import UpdateModal from "../components/UpdateModal";
 
 function Table() {
-  const { category } = useParams();
-  const currentCategory = category ?? "";
+  const { category = "" } = useParams();
 
   const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
   const loggedInUser = useRecoilValue(loggedInUserAtom);
@@ -32,7 +31,7 @@ function Table() {
   };
 
   const setNewRanking = async (newRanking: IRanking, likeId?: ILike["id"]) => {
-    const rankingDoc = doc(dbService, currentCategory, `ranking_${loggedInUser?.uid}`);
+    const rankingDoc = doc(dbService, category, `ranking_${loggedInUser?.uid}`);
     if (likeId) {
       await updateDoc(rankingDoc, { ...newRanking, [likeId]: deleteField() });
     } else {
@@ -63,7 +62,7 @@ function Table() {
   };
 
   const onDelete = async (like: ILike) => {
-    await deleteDoc(doc(dbService, currentCategory, like.id));
+    await deleteDoc(doc(dbService, category, like.id));
     const copyRanking = Object.assign({}, ranking);
     Object.keys(copyRanking).forEach(
       (songId) => copyRanking[songId] > copyRanking[like.id] && (copyRanking[songId] = copyRanking[songId] - 1)
@@ -73,8 +72,8 @@ function Table() {
   };
 
   const TrLength = init
-    ? (myLikesTemplate[currentCategory].typingFields.length || 0) +
-      Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).length +
+    ? (myLikesTemplate[category].typingFields.length || 0) +
+      Object.keys(myLikesTemplate[category].selectingFieldsAndOptions).length +
       1
     : 0;
 
@@ -87,10 +86,10 @@ function Table() {
               <thead>
                 <Tr headerLength={TrLength}>
                   <Th>Rank</Th>
-                  {myLikesTemplate[currentCategory].typingFields.map((fieldName, index) => (
+                  {myLikesTemplate[category].typingFields.map((fieldName, index) => (
                     <Th key={index}>{fieldName}</Th>
                   ))}
-                  {Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).map((fieldName, index) => (
+                  {Object.keys(myLikesTemplate[category].selectingFieldsAndOptions).map((fieldName, index) => (
                     <Th key={index}>{fieldName}</Th>
                   ))}
                 </Tr>
@@ -109,11 +108,11 @@ function Table() {
                             {...provided.dragHandleProps}
                           >
                             <Td>{ranking[like.id]}</Td>
-                            {myLikesTemplate[currentCategory]?.typingFields.map((fieldName) => (
+                            {myLikesTemplate[category]?.typingFields.map((fieldName) => (
                               <Td key={fieldName}>{like[fieldName]}</Td>
                             ))}
-                            {myLikesTemplate[currentCategory]?.selectingFieldsAndOptions
-                              ? Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).map(
+                            {myLikesTemplate[category]?.selectingFieldsAndOptions
+                              ? Object.keys(myLikesTemplate[category].selectingFieldsAndOptions).map(
                                   (fieldName, index) => <Td key={index}>{like[fieldName]}</Td>
                                 )
                               : null}

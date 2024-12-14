@@ -13,8 +13,7 @@ interface CardProps {
 }
 
 function PaintCard({ like, index, onModalOnDbClick }: CardProps) {
-  const { category } = useParams();
-  const currentCategory = category ?? "";
+  const { category = "" } = useParams();
 
   const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
 
@@ -28,7 +27,7 @@ function PaintCard({ like, index, onModalOnDbClick }: CardProps) {
           {...provided.draggableProps}
           onDoubleClick={() => onModalOnDbClick(like.id)}
         >
-          {like[myLikesTemplate[currentCategory]?.typingFields[0]]}
+          {like[myLikesTemplate[category]?.typingFields[0]]}
         </DraggableCard>
       )}
     </Draggable>

@@ -22,6 +22,7 @@ function PaintBoard({ boardId, currentBoard }: BoardProps) {
       setUpdateOne(likes.filter((like) => like.id === id)[0]);
     }
   };
+
   const onModalOffClick = () => {
     if (updateOne !== "") setUpdateOne("");
   };

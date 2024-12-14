@@ -14,8 +14,7 @@ import { ReactComponent as TableIcon } from "../assets/table.svg";
 
 function MyLike() {
   const { pathname } = useLocation();
-  const { category } = useParams();
-  const currentCategory = category ?? "";
+  const { category = "" } = useParams();
 
   const loggedInUser = useRecoilValue(loggedInUserAtom);
   const [isModalOn, setIsModalOn] = useState(false);
@@ -32,7 +31,7 @@ function MyLike() {
   };
 
   useEffect(() => {
-    const q = query(collection(dbService, currentCategory), where("creatorId", "==", loggedInUser?.uid));
+    const q = query(collection(dbService, category), where("creatorId", "==", loggedInUser?.uid));
 
     onSnapshot(q, (querySnapshot) => {
       const likesDB = [] as ILike[];
@@ -42,10 +41,10 @@ function MyLike() {
       setRareLikes(likesDB);
     });
 
-    onSnapshot(doc(dbService, currentCategory, `ranking_${loggedInUser?.uid}`), (doc) => {
+    onSnapshot(doc(dbService, category, `ranking_${loggedInUser?.uid}`), (doc) => {
       setRanking({ ...doc.data() });
     });
-  }, [currentCategory, loggedInUser?.uid, setRanking]);
+  }, [category, loggedInUser?.uid, setRanking]);
 
   useEffect(() => {
     const orderedRareLikes = rareLikes.slice();
@@ -58,7 +57,7 @@ function MyLike() {
       <Wrapper>
         <Menu>
           <Title>
-            {currentCategory}
+            {category}
             <Button onClick={onModalOnClick}>+</Button>
           </Title>
           <Button>

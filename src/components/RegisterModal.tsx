@@ -16,8 +16,7 @@ interface IModalProps {
 }
 
 function Modal({ onModalOffClick }: IModalProps) {
-  const { category } = useParams();
-  const currentCategory = category ?? "";
+  const { category = "" } = useParams();
 
   const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
   const loggedInUser = useRecoilValue(loggedInUserAtom);
@@ -37,9 +36,9 @@ function Modal({ onModalOffClick }: IModalProps) {
     };
 
     try {
-      await setDoc(doc(dbService, currentCategory, likeId), baseInfo);
+      await setDoc(doc(dbService, category, likeId), baseInfo);
       await setDoc(
-        doc(dbService, currentCategory, `ranking_${loggedInUser?.uid}`),
+        doc(dbService, category, `ranking_${loggedInUser?.uid}`),
         { [likeId]: likes.length + 1 },
         { merge: true }
       ); //add ranking_uid document
@@ -49,12 +48,12 @@ function Modal({ onModalOffClick }: IModalProps) {
 
     const defaultValueAfterRegister: IStringsInObject = {};
 
-    myLikesTemplate[currentCategory].typingFields.forEach((fieldName) => {
+    myLikesTemplate[category].typingFields.forEach((fieldName) => {
       defaultValueAfterRegister[fieldName] = "";
     });
 
-    Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).forEach((fieldName) => {
-      defaultValueAfterRegister[fieldName] = myLikesTemplate[currentCategory].selectingFieldsAndOptions[fieldName][0];
+    Object.keys(myLikesTemplate[category].selectingFieldsAndOptions).forEach((fieldName) => {
+      defaultValueAfterRegister[fieldName] = myLikesTemplate[category].selectingFieldsAndOptions[fieldName][0];
     });
 
     reset(defaultValueAfterRegister);
@@ -68,7 +67,7 @@ function Modal({ onModalOffClick }: IModalProps) {
         </Title>
         <CloseButton onClick={onModalOffClick}>×</CloseButton>
         <Form onSubmit={handleSubmit(onSubmit)}>
-          {myLikesTemplate[currentCategory]?.typingFields.map((fieldName) => (
+          {myLikesTemplate[category]?.typingFields.map((fieldName) => (
             <InputLine key={fieldName}>
               <Label htmlFor="header">{fieldName}</Label>
               <Input
@@ -79,13 +78,13 @@ function Modal({ onModalOffClick }: IModalProps) {
               />
             </InputLine>
           ))}
-          {myLikesTemplate[currentCategory]?.selectingFieldsAndOptions
-            ? Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).map((fieldName) => {
+          {myLikesTemplate[category]?.selectingFieldsAndOptions
+            ? Object.keys(myLikesTemplate[category].selectingFieldsAndOptions).map((fieldName) => {
                 return (
                   <InputLine key={fieldName}>
                     <Label htmlFor={fieldName}>{fieldName}</Label>
                     <Select id={fieldName} {...register(fieldName, { required: true })}>
-                      {myLikesTemplate[currentCategory].selectingFieldsAndOptions[fieldName].map((option) => (
+                      {myLikesTemplate[category].selectingFieldsAndOptions[fieldName].map((option) => (
                         <option key={option} value={option}>
                           {option}
                         </option>

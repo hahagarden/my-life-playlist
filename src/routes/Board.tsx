@@ -10,12 +10,11 @@ import { doc, updateDoc } from "firebase/firestore";
 import { dbService } from "../fbase";
 
 function Board() {
-  const { category } = useParams();
-  const currentCategory = category ?? "";
+  const { category = "" } = useParams();
 
   const myLikesTemplate = useRecoilValue(categoryTemplateAtom);
   const [currentBoard, setCurrentBoard] = useState<string>(
-    Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions)[0]
+    Object.keys(myLikesTemplate[category].selectingFieldsAndOptions)[0]
   );
 
   const boardClick = (attr: string) => {
@@ -23,7 +22,7 @@ function Board() {
   };
 
   const onDragEnd = async (info: DropResult) => {
-    const currentLike = doc(dbService, currentCategory, info.draggableId);
+    const currentLike = doc(dbService, category, info.draggableId);
 
     await updateDoc(currentLike, {
       [currentBoard]: info.destination?.droppableId,
@@ -34,7 +33,7 @@ function Board() {
   return (
     <BoardWrapper>
       <Categories>
-        {Object.keys(myLikesTemplate[currentCategory].selectingFieldsAndOptions).map((fieldName) => (
+        {Object.keys(myLikesTemplate[category].selectingFieldsAndOptions).map((fieldName) => (
           <Button key={fieldName} onClick={() => boardClick(fieldName)}>
             {fieldName}
           </Button>
@@ -43,7 +42,7 @@ function Board() {
       {currentBoard ? (
         <DragDropContext onDragEnd={onDragEnd}>
           <Boards>
-            {myLikesTemplate[currentCategory].selectingFieldsAndOptions[currentBoard].map((option, index) => (
+            {myLikesTemplate[category].selectingFieldsAndOptions[currentBoard].map((option, index) => (
               <PaintBoard key={index} currentBoard={currentBoard} boardId={option} />
             ))}
           </Boards>
