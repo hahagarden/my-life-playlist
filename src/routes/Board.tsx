@@ -6,6 +6,8 @@ import { useRecoilValue } from "recoil";
 
 import { categoryTemplateAtom } from "../atom";
 import PaintBoard from "../components/PaintBoard";
+import { doc, updateDoc } from "firebase/firestore";
+import { dbService } from "../fbase";
 
 function Board() {
   const { category } = useParams();
@@ -20,8 +22,13 @@ function Board() {
     setCurrentBoard(attr);
   };
 
-  const onDragEnd = (info: DropResult) => {
-    console.log(info);
+  const onDragEnd = async (info: DropResult) => {
+    const currentLike = doc(dbService, currentCategory, info.draggableId);
+
+    await updateDoc(currentLike, {
+      [currentBoard]: info.destination?.droppableId,
+      updatedAt: Date.now(),
+    });
   };
 
   return (

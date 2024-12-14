@@ -79,4 +79,5 @@ const Title = styled.h1`
 
 const DroppableBoard = styled.div`
   background-color: transparent;
+  height: 100%;
 `;
